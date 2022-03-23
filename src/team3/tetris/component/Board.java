@@ -28,7 +28,7 @@ import team3.tetris.blocks.ZBlock;
 
 public class Board extends JFrame {
 
-	private static final long serialVersionUID = 2434035659171694595L;
+	private static final long serialVersionUID = 2434035659171694595L; // version
 	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
@@ -46,8 +46,8 @@ public class Board extends JFrame {
 	private static final int initInterval = 1000;
 	
 	public Board() {
-		super("SeoulTech SE Tetris");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		super("Team 3 Tetris");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 		
 		//Board display setting.
 		pane = new JTextPane();
@@ -57,18 +57,18 @@ public class Board extends JFrame {
 				BorderFactory.createLineBorder(Color.GRAY, 10),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
 		pane.setBorder(border);
-		this.getContentPane().add(pane, BorderLayout.CENTER);
+		this.getContentPane().add(pane, BorderLayout.CENTER); // 가운데에 추가
 		
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
-		StyleConstants.setFontSize(styleSet, 18);
+		StyleConstants.setFontSize(styleSet, 20);
 		StyleConstants.setFontFamily(styleSet, "Courier");
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 		
 		//Set timer for block drops.
-		timer = new Timer(initInterval, new ActionListener() {			
+		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				moveDown();
@@ -76,14 +76,14 @@ public class Board extends JFrame {
 			}
 		});
 		
-		//Initialize board for the game.
+		// Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
 		playerKeyListener = new PlayerKeyListener();
 		addKeyListener(playerKeyListener);
 		setFocusable(true);
 		requestFocus();
 		
-		//Create the first block and draw.
+		// Create the first block and draw.
 		curr = getRandomBlock();
 		placeBlock();
 		drawBoard();
@@ -91,7 +91,7 @@ public class Board extends JFrame {
 	}
 
 	private Block getRandomBlock() {
-		Random rnd = new Random(System.currentTimeMillis());
+		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
 		int block = rnd.nextInt(6);
 		switch(block) {
 		case 0:
@@ -117,16 +117,16 @@ public class Board extends JFrame {
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 		StyleConstants.setForeground(styles, curr.getColor());
 		for(int j=0; j<curr.height(); j++) {
-			int rows = y+j == 0 ? 0 : y+j-1;
+			int rows = y+j == 0 ? 0 : y+j-1; // ?
 			int offset = rows * (WIDTH+3) + x + 1;
 			doc.setCharacterAttributes(offset, curr.width(), styles, true);
-			for(int i=0; i<curr.width(); i++) {
+			for(int i=0; i<curr.width(); i++) { // 블럭 배열을 board 배열에 대입
 				board[y+j][x+i] = curr.getShape(i, j);
 			}
 		}
 	}
 	
-	private void eraseCurr() {
+	private void eraseCurr() { // Erase current block.
 		for(int i=x; i<x+curr.width(); i++) {
 			for(int j=y; j<y+curr.height(); j++) {
 				board[j][i] = 0;
@@ -161,7 +161,7 @@ public class Board extends JFrame {
 	}
 
 	public void drawBoard() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
 		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR);
 		sb.append("\n");
 		for(int i=0; i < board.length; i++) {
@@ -184,10 +184,10 @@ public class Board extends JFrame {
 	}
 	
 	public void reset() {
-		this.board = new int[20][10];
+		this.board = new int[HEIGHT][WIDTH];
 	}
 
-	public class PlayerKeyListener implements KeyListener {
+	public class PlayerKeyListener implements KeyListener { // key 입력
 		@Override
 		public void keyTyped(KeyEvent e) {
 				
@@ -210,7 +210,7 @@ public class Board extends JFrame {
 				break;
 			case KeyEvent.VK_UP:
 				eraseCurr();
-				curr.rotate();
+				curr.rotate(); // 현재 블럭 회전
 				drawBoard();
 				break;
 			}
