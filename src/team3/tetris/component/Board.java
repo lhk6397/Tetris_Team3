@@ -66,7 +66,7 @@ public class Board extends JFrame {
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, 20);
-		StyleConstants.setFontFamily(styleSet, "Courier");
+		StyleConstants.setFontFamily(styleSet, "MONOSPACED");
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
@@ -199,6 +199,7 @@ public class Board extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
+			
 			switch(e.getKeyCode()) {
 			case KeyEvent.VK_DOWN:
 				moveDown();
@@ -214,7 +215,7 @@ public class Board extends JFrame {
 				break;
 			case KeyEvent.VK_UP:
 				eraseCurr();
-				curr.rotate(); // 현재 블럭 회전
+				curr.rotate();
 				drawBoard();
 				break;
 			case KeyEvent.VK_SPACE:
@@ -230,8 +231,8 @@ public class Board extends JFrame {
 			case KeyEvent.VK_ESCAPE:
 				//control.escape();
 				timer.stop();
-				ExitDialog ed = new ExitDialog(Board.this);
-				ed.setVisible(true);
+				Scoreboard sb = new Scoreboard();
+				sb.setVisible(true);
 				break;
 				// 중단
 				// 게임 종료
@@ -244,3 +245,4 @@ public class Board extends JFrame {
 
 	}
 }
+
