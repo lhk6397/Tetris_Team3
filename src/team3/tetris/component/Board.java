@@ -1,7 +1,9 @@
 package team3.tetris.component;
 
+import java.io.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -25,6 +27,7 @@ import team3.tetris.blocks.OBlock;
 import team3.tetris.blocks.SBlock;
 import team3.tetris.blocks.TBlock;
 import team3.tetris.blocks.ZBlock;
+import team3.tetris.control.*;
 
 public class Board extends JFrame {
 
@@ -34,6 +37,7 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final char BORDER_CHAR = 'X';
 	
+	private control control;
 	private JTextPane pane;
 	private int[][] board;
 	private KeyListener playerKeyListener;
@@ -48,7 +52,7 @@ public class Board extends JFrame {
 	public Board() {
 		super("Team 3 Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
-		
+		control = new control();
 		//Board display setting.
 		pane = new JTextPane();
 		pane.setEditable(false);
@@ -81,7 +85,7 @@ public class Board extends JFrame {
 		playerKeyListener = new PlayerKeyListener();
 		addKeyListener(playerKeyListener);
 		setFocusable(true);
-		requestFocus();
+		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
 		
 		// Create the first block and draw.
 		curr = getRandomBlock();
@@ -213,13 +217,30 @@ public class Board extends JFrame {
 				curr.rotate(); // 현재 블럭 회전
 				drawBoard();
 				break;
+			case KeyEvent.VK_SPACE:
+				//harDrop();
+				break;
+			case KeyEvent.VK_P:
+				//control.pause();
+				timer.stop();
+				PauseDialog pd = new PauseDialog(Board.this);
+				pd.setVisible(true);
+				if(pd.getResume() == true) timer.start();
+				break;
+			case KeyEvent.VK_ESCAPE:
+				//control.escape();
+				timer.stop();
+				ExitDialog ed = new ExitDialog(Board.this);
+				ed.setVisible(true);
+				break;
+				// 중단
+				// 게임 종료
+				// 게임 종료 인터페이스 띄우기
 			}
 		}
 
 		@Override
-		public void keyReleased(KeyEvent e) {
-			
-		}
+		public void keyReleased(KeyEvent e) {}
+
 	}
-	
 }
