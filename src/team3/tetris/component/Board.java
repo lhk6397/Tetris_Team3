@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -37,8 +38,12 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final char BORDER_CHAR = 'X';
 	
+	private int score = 100;  // 점수칸 매꾸는 용도 
 	private control control;
 	private JTextPane pane;
+	private JTextPane priviewPane;
+	private JTextPane scorePane;
+	private JTextPane background;
 	private int[][] board;
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
@@ -53,16 +58,42 @@ public class Board extends JFrame {
 		super("Team 3 Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 		control = new control();
+		
 		//Board display setting.
-		pane = new JTextPane();
-		pane.setEditable(false);
-		pane.setBackground(Color.BLACK);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
-		pane.setBorder(border);
-		this.getContentPane().add(pane, BorderLayout.CENTER); // 가운데에 추가
 		
+		pane = new JTextPane();
+		pane.setEditable(false);
+		pane.setBackground(Color.BLACK);
+		pane.setBorder(border);
+		pane.setBounds(0, 0, 230, 630);
+		this.getContentPane().add(pane);
+		
+		//PreviewBoard 
+		priviewPane = new JTextPane();
+		priviewPane.setEditable(false); 
+		priviewPane.setBackground(Color.white);
+		priviewPane.setBorder(border); 
+		priviewPane.setBounds(230, 0, 130, 130);
+		this.getContentPane().add(priviewPane);
+		
+		//ScoreBoard
+		scorePane = new JTextPane();
+		scorePane.setEditable(false);
+		scorePane.setBorder(border);
+		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
+		scorePane.setBounds(230, 130, 130, 50);	
+		scorePane.setBorder(border2);
+		scorePane.setText("Score : "+ score);
+		this.getContentPane().add(scorePane);
+		
+		//Background
+		background = new JTextPane();
+		background.setBackground(Color.DARK_GRAY);		
+		this.getContentPane().add(background);
+		 
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, 20);
@@ -86,7 +117,7 @@ public class Board extends JFrame {
 		addKeyListener(playerKeyListener);
 		setFocusable(true);
 		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
-		
+	
 		// Create the first block and draw.
 		curr = getRandomBlock();
 		placeBlock();
@@ -95,6 +126,7 @@ public class Board extends JFrame {
 	}
 
 	private Block getRandomBlock() {
+		Random rnd0 = new Random(System.currentTimeMillis()/1);
 		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
 		int block = rnd.nextInt(6);
 		switch(block) {
@@ -114,6 +146,7 @@ public class Board extends JFrame {
 			return new OBlock();			
 		}
 		return new LBlock();
+		
 	}
 	
 	private void placeBlock() {
@@ -121,7 +154,7 @@ public class Board extends JFrame {
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 		StyleConstants.setForeground(styles, curr.getColor());
 		for(int j=0; j<curr.height(); j++) {
-			int rows = y+j == 0 ? 0 : y+j-1; // ?
+			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
 			int offset = rows * (WIDTH+3) + x + 1;
 			doc.setCharacterAttributes(offset, curr.width(), styles, true);
 			for(int i=0; i<curr.width(); i++) { // 블럭 배열을 board 배열에 대입
@@ -138,7 +171,7 @@ public class Board extends JFrame {
 		}
 	}
 
-	protected void moveDown() { 
+	protected void moveDown() {
 		eraseCurr();
 		if(y < HEIGHT - curr.height()) y++;
 		else {
