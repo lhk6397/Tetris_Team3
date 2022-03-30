@@ -1,7 +1,6 @@
 package team3.tetris.component;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 

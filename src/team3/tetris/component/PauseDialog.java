@@ -1,6 +1,5 @@
 package team3.tetris.component;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Frame;

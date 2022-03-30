@@ -1,9 +1,6 @@
 package team3.tetris.component;
 
-import java.io.*;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -28,7 +25,6 @@ import team3.tetris.blocks.OBlock;
 import team3.tetris.blocks.SBlock;
 import team3.tetris.blocks.TBlock;
 import team3.tetris.blocks.ZBlock;
-import team3.tetris.control.*;
 
 public class Board extends JFrame {
 
@@ -39,7 +35,6 @@ public class Board extends JFrame {
 	public static final char BORDER_CHAR = 'X';
 	
 	private int score = 100;  // 점수칸 매꾸는 용도 
-	private control control;
 	private JTextPane pane;
 	private JTextPane priviewPane;
 	private JTextPane scorePane;
@@ -57,7 +52,6 @@ public class Board extends JFrame {
 	public Board() {
 		super("Team 3 Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
-		control = new control();
 		
 		//Board display setting.
 		CompoundBorder border = BorderFactory.createCompoundBorder(
@@ -126,7 +120,7 @@ public class Board extends JFrame {
 	}
 
 	private Block getRandomBlock() {
-		Random rnd0 = new Random(System.currentTimeMillis()/1);
+		Random rnd0 = new Random(System.currentTimeMillis());
 		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
 		int block = rnd.nextInt(6);
 		switch(block) {
@@ -153,6 +147,9 @@ public class Board extends JFrame {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 		StyleConstants.setForeground(styles, curr.getColor());
+		
+		gameOverCheck();
+		
 		for(int j=0; j<curr.height(); j++) {
 			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
 			int offset = rows * (WIDTH+3) + x + 1;
@@ -161,6 +158,7 @@ public class Board extends JFrame {
 				board[y+j][x+i] = curr.getShape(i, j);
 			}
 		}
+		
 	}
 	
 	private void eraseCurr() { // Erase current block.
@@ -197,23 +195,33 @@ public class Board extends JFrame {
 		placeBlock();
 	}
 
+	public void gameOverCheck() {
+		for(int k = 0; k<WIDTH; ++k) {
+			if(board[0][k] == 1) {
+				timer.stop();
+				Scoreboard sb = new Scoreboard();
+				sb.setVisible(true);
+			}
+		}
+	}
+	
 	public void drawBoard() {
 		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
-		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR);
+		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 윗쪽 벽
 		sb.append("\n");
 		for(int i=0; i < board.length; i++) {
-			sb.append(BORDER_CHAR);
-			for(int j=0; j < board[i].length; j++) {
+			sb.append(BORDER_CHAR); // 왼쪽 벽
+			for(int j=0; j < board[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(board[i][j] == 1) {
 					sb.append("O");
 				} else {
 					sb.append(" ");
 				}
 			}
-			sb.append(BORDER_CHAR);
+			sb.append(BORDER_CHAR); // 오른쪽 벽
 			sb.append("\n");
 		}
-		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR);
+		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 아랫쪽 벽
 		pane.setText(sb.toString());
 		StyledDocument doc = pane.getStyledDocument();
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
@@ -255,21 +263,16 @@ public class Board extends JFrame {
 				//harDrop();
 				break;
 			case KeyEvent.VK_P:
-				//control.pause();
 				timer.stop();
 				PauseDialog pd = new PauseDialog(Board.this);
 				pd.setVisible(true);
 				if(pd.getResume() == true) timer.start();
 				break;
 			case KeyEvent.VK_ESCAPE:
-				//control.escape();
 				timer.stop();
 				Scoreboard sb = new Scoreboard();
 				sb.setVisible(true);
 				break;
-				// 중단
-				// 게임 종료
-				// 게임 종료 인터페이스 띄우기
 			}
 		}
 
