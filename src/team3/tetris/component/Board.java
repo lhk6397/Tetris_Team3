@@ -138,7 +138,7 @@ public class Board extends JFrame {
 		}
 	}
 
-	protected void moveDown() {
+	protected void moveDown() { 
 		eraseCurr();
 		if(y < HEIGHT - curr.height()) y++;
 		else {

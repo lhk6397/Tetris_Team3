@@ -15,6 +15,11 @@ import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
+/*
+ * 쿨래스: ExitDialog
+ * 게임 종료 시 띄우는 Dialog
+ */
+
 public class ExitDialog extends Dialog implements ActionListener {
 	JPanel pan;
 	JLabel label;
