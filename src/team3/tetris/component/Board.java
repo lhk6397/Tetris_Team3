@@ -174,7 +174,7 @@ public class Board extends JFrame {
 				if(board[i][j] == 1) {
 					sb.append("O");
 				} else {
-					sb.append("  ");
+					sb.append("    ");
 				}
 			}
 			sb.append(BORDER_CHAR);
