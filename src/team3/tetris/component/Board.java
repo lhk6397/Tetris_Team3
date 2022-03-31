@@ -34,7 +34,9 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final char BORDER_CHAR = 'X';
 	
+	protected boolean isPaused = false;
 	private int score = 100;  // 점수칸 매꾸는 용도 
+	private PauseDialog pd;
 	private JTextPane pane;
 	private JTextPane priviewPane;
 	private JTextPane scorePane;
@@ -52,7 +54,7 @@ public class Board extends JFrame {
 	public Board() {
 		super("Team 3 Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
-		
+		setLocationRelativeTo(null);
 		//Board display setting.
 		setSize(376,669);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
@@ -101,8 +103,10 @@ public class Board extends JFrame {
 		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				moveDown();
-				drawBoard();
+				if(!isPaused) {
+					moveDown();
+					drawBoard();
+				}
 			}
 		});
 		
@@ -206,6 +210,18 @@ public class Board extends JFrame {
 		}
 	}
 	
+	 private void pause() {
+
+	        isPaused = !isPaused;
+
+	        if (isPaused) {
+	        	System.out.println("Pause!");
+	        } else {
+	        	System.out.println("Resume!");
+	        }
+	        drawBoard();
+	    }
+	
 	public void drawBoard() {
 		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
 		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 윗쪽 벽
@@ -264,10 +280,7 @@ public class Board extends JFrame {
 				//harDrop();
 				break;
 			case KeyEvent.VK_P:
-				timer.stop();
-				PauseDialog pd = new PauseDialog(Board.this);
-				pd.setVisible(true);
-				if(pd.getResume() == true) timer.start();
+				pause();
 				break;
 			case KeyEvent.VK_ESCAPE:
 				timer.stop();

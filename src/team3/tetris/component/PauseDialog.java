@@ -62,7 +62,7 @@ public class PauseDialog extends Dialog implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == resume) {
-			// isResume = true;													// Error!!!!
+			isResume = true;					// Error!!!!
 			dispose();
 		}
 		else if(e.getSource() == exit) {

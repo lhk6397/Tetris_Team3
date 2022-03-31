@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
@@ -50,13 +51,14 @@ public class Scoreboard extends JFrame implements ActionListener{
 				{"1", "고지완", "100", "easy"}
 				};
 		JTable scoreboard = new JTable(contents, header);
-		scoreboard.setBackground(Color.BLACK);
-		scoreboard.setForeground(Color.WHITE);
+		JScrollPane scrollpane = new JScrollPane(scoreboard);
+		scrollpane.setBackground(Color.BLACK);
+		scrollpane.setForeground(Color.WHITE);
 		/*
 		 * contents: 1인 정보 (순위, 이름, 점수, 난이도)
 		 * score.txt 파일을 불러와 2차원 배열 형태의 contents에 내용을 담도록 해야 함.
 		 */
-		scorePanel.add(scoreboard);
+		scorePanel.add(scrollpane);
 		
 		inputPanel = new JPanel();
 		inputPanel.setBackground(Color.BLACK);
