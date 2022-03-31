@@ -1,9 +1,15 @@
 package team3.tetris.component;
 
+import team3.tetris.record.Record;
+import team3.tetris.record.RecordDTO;
+
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,7 +24,7 @@ public class Scoreboard extends JFrame implements ActionListener{
 	JLabel label1, label2;
 	JTextField nameT;
 	JButton okBtn, noBtn;
-	public Scoreboard() {
+	public Scoreboard() throws IOException {
 		super("ScoreBoard");
 		setSize(500, 500);
 		setLocationRelativeTo(null);
@@ -41,16 +47,26 @@ public class Scoreboard extends JFrame implements ActionListener{
 		
 		labelPanel.add(label1);
 		labelPanel.add(label2);
-		
 		scorePanel = new JPanel();
 		scorePanel.setBackground(Color.BLACK);
 		
 		// JTable
-		String header[] = {"순위", "이름", "점수", "난이도"};
-		String contents[][] = {
-				{"1", "고지완", "100", "easy"}
-				};
-		JTable scoreboard = new JTable(contents, header);
+		String mode = "normal";
+		String level = "esay";
+		String header[] = {"순위", "이름", "점수", "시간"};
+//		String contents[][] = {
+//				{"1", "고지완", "100", "easy"}
+//				};
+
+		RecordDTO recordDTO= new RecordDTO(mode, level, "KDB", 77, null);
+		recordDTO.setTime(new Date());
+
+		Record record = new Record("normal", "easy");
+		record.fetchScoreBoard();
+		record.setScoreBoard(recordDTO);
+
+		JTable scoreboard = new JTable(record.toStringScoreBoard(), header);
+
 		scoreboard.setBackground(Color.BLACK);
 		scoreboard.setForeground(Color.WHITE);
 		/*
