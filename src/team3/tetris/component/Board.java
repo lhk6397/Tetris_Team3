@@ -271,7 +271,12 @@ public class Board extends JFrame {
 				break;
 			case KeyEvent.VK_ESCAPE:
 				timer.stop();
-				Scoreboard sb = new Scoreboard();
+				Scoreboard sb = null;
+				try {
+					sb = new Scoreboard();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 				sb.setVisible(true);
 				break;
 			}
