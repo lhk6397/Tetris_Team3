@@ -1,18 +1,13 @@
 package team3.tetris.component;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
 /*
@@ -23,7 +18,7 @@ import javax.swing.JButton;
 public class ExitDialog extends Dialog implements ActionListener {
 	JPanel pan;
 	JLabel label;
-	JButton startMenu, exit; // startMenu, Exit Button
+	JButton mainMenu, exit; // startMenu, Exit Button
 	
 	public ExitDialog(Frame parent) {
 		super(parent, "ScoreBoard");
@@ -40,10 +35,10 @@ public class ExitDialog extends Dialog implements ActionListener {
 		label.setForeground(Color.WHITE);
 		
 		// resume button
-		startMenu = new JButton("Start Menu");
-		startMenu.addActionListener(this);
-		startMenu.setBackground(Color.BLACK);
-		startMenu.setForeground(Color.WHITE);
+		mainMenu = new JButton("Main Menu");
+		mainMenu.addActionListener(this);
+		mainMenu.setBackground(Color.BLACK);
+		mainMenu.setForeground(Color.WHITE);
 		// exit button
 		exit = new JButton("EXIT");
 		exit.addActionListener(this);
@@ -52,11 +47,11 @@ public class ExitDialog extends Dialog implements ActionListener {
 		
 		
 		label.setBounds(92, 70, 150, 30);
-		startMenu.setBounds(30, 170, 122, 30);
+		mainMenu.setBounds(30, 170, 122, 30);
 		exit.setBounds(182, 170, 122, 30);
 		
 		pan.add(label);
-		pan.add(startMenu);
+		pan.add(mainMenu);
 		pan.add(exit);
 		
 		add(pan);
@@ -64,9 +59,10 @@ public class ExitDialog extends Dialog implements ActionListener {
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == startMenu) {
-			// startMenu 띄우기
-			dispose();
+		if(e.getSource() == mainMenu) {
+			// mainMenu 띄우기
+			new MainMenu(null).setVisible(true);
+			setVisible(false);
 		}
 		else if(e.getSource() == exit) {
 			System.exit(0);

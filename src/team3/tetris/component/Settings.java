@@ -10,18 +10,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 
-public class PauseDialog extends Dialog implements ActionListener {
+public class Settings extends Dialog implements ActionListener {
 	JPanel pan;
 	JLabel label;
-	JButton resume, exit; // Resume, Exit Button
-	private boolean isResume = false;
+	JButton exit;
 	
-	public boolean getResume() {
-		return isResume;
-	}
 	
-	public PauseDialog(Frame parent) {
-		super(parent, "Pause");
+	
+	public Settings(Frame parent) {
+		super(parent, "Settings");
 		setSize(350, 300);
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
@@ -30,16 +27,10 @@ public class PauseDialog extends Dialog implements ActionListener {
 		pan.setBackground(Color.BLACK);
 		pan.setLayout(null);
 		
-		label = new JLabel("PAUSE!");
+		label = new JLabel("Settings");
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
 		
-		
-		// resume button
-		resume = new JButton("RESUME");
-		resume.addActionListener(this);
-		resume.setBackground(Color.BLACK);
-		resume.setForeground(Color.WHITE);
 		// exit button
 		exit = new JButton("EXIT");
 		exit.addActionListener(this);
@@ -48,26 +39,21 @@ public class PauseDialog extends Dialog implements ActionListener {
 		
 		
 		label.setBounds(92, 70, 150, 30);
-		resume.setBounds(30, 170, 122, 30);
-		exit.setBounds(182, 170, 122, 30);
+		exit.setBounds(0, 150, 270, 30);
 		
 		pan.add(label);
-		pan.add(resume);
 		pan.add(exit);
 		
 		add(pan);
-		
-	}
 	
+
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == resume) {
-			// isResume = true;													// Error!!!!
-			dispose();
-		}
-		else if(e.getSource() == exit) {
-			// 종료 인터페이스 띄우기
-			System.exit(0);
+		if(e.getSource() == exit) {
+			setVisible(false);
 		}
 	}
 }
+

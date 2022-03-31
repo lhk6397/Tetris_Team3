@@ -4,7 +4,6 @@ import team3.tetris.record.Record;
 import team3.tetris.record.RecordDTO;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
