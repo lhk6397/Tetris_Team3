@@ -1,6 +1,8 @@
 package team3.tetris.component;
 
 import java.awt.Color;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-public class MainMenu extends JFrame implements ActionListener {
+public class MainMenu extends Dialog implements ActionListener {
 	JPanel pan;
 	JLabel label;
 	JButton start;
@@ -17,10 +19,11 @@ public class MainMenu extends JFrame implements ActionListener {
 	JButton scoreBoard;
 	JButton exit;
 	
-	public MainMenu() {
-		super("StartMenu");
+	
+	
+	public MainMenu(Frame parent) {
+		super(parent, "StartMenu");
 		setSize(350, 300);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
 		

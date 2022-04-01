@@ -5,6 +5,6 @@ import team3.tetris.component.MainMenu;
 public class Tetris {
 
 	public static void main(String[] args) {
-		new MainMenu().setVisible(true);
+		new MainMenu(null).setVisible(true);
 	}
 }
