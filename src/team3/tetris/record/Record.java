@@ -1,7 +1,5 @@
 package team3.tetris.record;
 
-import team3.tetris.component.Scoreboard;
-
 import java.io.*;
 import java.util.ArrayList;
 
@@ -11,9 +9,9 @@ public class Record {
     private String level = "easy";
     private ArrayList<RecordDTO> scoreBoard = new ArrayList<RecordDTO>();
     private int changedRank;
-    private String fileURL = "/Users/gimsehan/Desktop/소웨공/Tetris_Team3/records/" + mode + "/" + level + ".txt";
+    private String fileURL = "../Tetris_Team3/records/" + mode + "/" + level + ".txt";
 
-
+    
     public Record(String mode, String level) throws IOException {
         this.mode = mode;
         this.level = level;

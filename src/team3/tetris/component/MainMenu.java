@@ -1,17 +1,16 @@
 package team3.tetris.component;
 
 import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-public class MainMenu extends Dialog implements ActionListener {
+public class MainMenu extends JFrame implements ActionListener {
 	JPanel pan;
 	JLabel label;
 	JButton start;
@@ -19,10 +18,8 @@ public class MainMenu extends Dialog implements ActionListener {
 	JButton scoreBoard;
 	JButton exit;
 	
-	
-	
-	public MainMenu(Frame parent) {
-		super(parent, "StartMenu");
+	public MainMenu() {
+		super("StartMenu");
 		setSize(350, 300);
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
@@ -81,7 +78,7 @@ public class MainMenu extends Dialog implements ActionListener {
 		if(e.getSource() == start) {
 			// isStart = true;
 			new Board().setVisible(true);
-			setVisible(false);
+			dispose();
 		}
 		else if(e.getSource() == settings) {
 			// 세팅 인터페이스 띄우기
@@ -89,7 +86,12 @@ public class MainMenu extends Dialog implements ActionListener {
 		}
 		else if(e.getSource() == scoreBoard) {
 			// 스코어보드 인터페이스 띄우기
-			new Scoreboard().setVisible(true);
+			try {
+				new Scoreboard().setVisible(true);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			setVisible(false);
 		}
 		else if(e.getSource() == exit) {
