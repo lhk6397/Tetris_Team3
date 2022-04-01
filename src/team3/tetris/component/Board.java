@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -34,7 +35,8 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final char BORDER_CHAR = 'X';
 	
-	private int score = 100;  // 점수칸 매꾸는 용도 
+	private int score = 100;  // 점수칸 매꾸는 용도
+	private boolean isPaused = false;
 	private JTextPane pane;
 	private JTextPane priviewPane;
 	private JTextPane scorePane;
@@ -101,8 +103,10 @@ public class Board extends JFrame {
 		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				moveDown();
-				drawBoard();
+				if(!isPaused) {
+					moveDown();
+					drawBoard();
+				}
 			}
 		});
 		
@@ -143,6 +147,18 @@ public class Board extends JFrame {
 		return new LBlock();
 		
 	}
+	
+	private void pause() {
+
+        isPaused = !isPaused;
+
+        if (isPaused) {
+        	System.out.println("Pause!");
+        } else {
+        	System.out.println("Resume!");
+        }
+        drawBoard();
+    }
 	
 	private void placeBlock() {
 		StyledDocument doc = pane.getStyledDocument();
@@ -200,8 +216,14 @@ public class Board extends JFrame {
 		for(int k = 0; k<WIDTH; ++k) {
 			if(board[0][k] == 1) {
 				timer.stop();
-				Scoreboard sb = new Scoreboard();
-				sb.setVisible(true);
+				Scoreboard sb;
+				try {
+					sb = new Scoreboard();
+					sb.setVisible(true);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -264,14 +286,20 @@ public class Board extends JFrame {
 				//harDrop();
 				break;
 			case KeyEvent.VK_P:
-				timer.stop();
-				PauseDialog pd = new PauseDialog(Board.this);
-				pd.setVisible(true);
-				if(pd.getResume() == true) timer.start();
+//				timer.stop();
+//				PauseDialog pd = new PauseDialog(Board.this);
+//				pd.setVisible(true);
+//				if(pd.getResume() == true) timer.start();
+				pause();
 				break;
 			case KeyEvent.VK_ESCAPE:
 				timer.stop();
-				Scoreboard sb = new Scoreboard();
+				Scoreboard sb = null;
+				try {
+					sb = new Scoreboard();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 				sb.setVisible(true);
 				break;
 			}
