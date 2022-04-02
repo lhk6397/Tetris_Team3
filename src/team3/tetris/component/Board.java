@@ -51,6 +51,7 @@ public class Board extends JFrame {
 	private Timer timer;
 	private Block curr;
 	private Block next;
+	String status;
 	int x = 3; //Default Position.
 	int y = 0;
 	
@@ -61,7 +62,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 		
 		//Board display setting.
-		setSize(386,669);
+		setSize(396,669);
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
@@ -79,7 +80,7 @@ public class Board extends JFrame {
 		previewPane.setEditable(false); 
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border); 
-		previewPane.setBounds(240, 0, 130, 130);
+		previewPane.setBounds(250, 0, 130, 130);
 		this.getContentPane().add(previewPane);
 		
 		//ScoreBoard
@@ -87,7 +88,7 @@ public class Board extends JFrame {
 		scorePane.setEditable(false);
 		scorePane.setBorder(border);
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(240, 130, 130, 50);	
+		scorePane.setBounds(250, 130, 130, 50);	
 		scorePane.setBorder(border2);
 		scorePane.setText("Score : "+ score);
 		this.getContentPane().add(scorePane);
@@ -96,9 +97,8 @@ public class Board extends JFrame {
 		statusBar = new JTextPane();
 		statusBar.setEditable(false);
 		TitledBorder border3 = BorderFactory.createTitledBorder("Status");
-		statusBar.setBounds(240, 580, 130, 50);	
-		statusBar.setBorder(border3);
-//		statusBar.setText(status);  // 상태 
+		statusBar.setBounds(250, 570, 130, 50);	
+		statusBar.setBorder(border3); 
 		this.getContentPane().add(statusBar);
 		
 		//Background
@@ -196,11 +196,12 @@ public class Board extends JFrame {
         isPaused = !isPaused;
 
         if (isPaused) {
-        	System.out.println("Pause!");
+        	status = "Pause!";
         } else {
-        	System.out.println("Resume!");
+        	status = "Resume!";
         }
         drawBoard();
+        statusBar.setText(status);
     }
 	
 	private void placePreBlock() {
@@ -263,7 +264,6 @@ public class Board extends JFrame {
 			next = getRandomBlock();
 			x = 3;
 			y = 0;
-//			System.out.print(isPaused);
 		} 
 		placeBlock();
 	} 
@@ -320,7 +320,6 @@ public class Board extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		pane.setStyledDocument(doc);
 		drawPreviewBoard();
-		eraseNext();
 	}
 	
 	public void drawPreviewBoard() {
@@ -342,6 +341,7 @@ public class Board extends JFrame {
 		StyledDocument doc = previewPane.getStyledDocument();							
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		previewPane.setStyledDocument(doc);
+
 	}
 	
 	public void reset() {
