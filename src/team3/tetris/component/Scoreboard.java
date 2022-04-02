@@ -3,6 +3,8 @@ package team3.tetris.component;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
@@ -10,7 +12,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.border.CompoundBorder;
 
+/*
+ * 클래스: Scoreboard
+ * 기능: 게임 종료 시 띄우는 Frame
+ */
+
 public class Scoreboard extends JFrame{
+	private boolean isSubmitted = false;
 	Container con;
 	JLabel label;
 	ScoreTable scoretable;
@@ -20,6 +28,7 @@ public class Scoreboard extends JFrame{
 	Board parent;
     
 	public void checkSubmission(boolean isSubmitted) {
+		this.isSubmitted = isSubmitted;
 		if(isSubmitted) {
 			con.remove(inputPanel);
 			con.add(exitPanel);
@@ -40,6 +49,7 @@ public class Scoreboard extends JFrame{
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		addWindowFocusListener(new myWindowFocusListener());
 		
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
@@ -69,6 +79,28 @@ public class Scoreboard extends JFrame{
         con.add(label);
         con.add(scoretable);
         con.add(inputPanel);
+	}
+	
+	public class myWindowFocusListener implements WindowFocusListener {
+
+		@Override
+		public void windowGainedFocus(WindowEvent e) {
+			// TODO Auto-generated method stub
+			if(isSubmitted) {
+				exitPanel.mainMenu.requestFocus();
+				exitPanel.curBtn = exitPanel.mainMenu;
+			} else {
+				inputPanel.nameT.requestFocus();
+				inputPanel.curBtn = inputPanel.okBtn;
+			}
+		}
+
+		@Override
+		public void windowLostFocus(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	
 }
