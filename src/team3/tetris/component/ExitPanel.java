@@ -1,13 +1,13 @@
 package team3.tetris.component;
 
 import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
 /*
@@ -15,58 +15,67 @@ import javax.swing.JButton;
  * 게임 종료 시 띄우는 Dialog
  */
 
-public class ExitDialog extends Dialog implements ActionListener {
+public class ExitPanel extends JPanel implements ActionListener{
 	JPanel pan;
 	JLabel label;
-	JButton mainMenu, exit; // startMenu, Exit Button
+	JButton mainMenu;
+	JButton exit;
 	
-	public ExitDialog(Frame parent) {
-		super(parent, "ScoreBoard");
-		setSize(350, 300);
-		setLocationRelativeTo(null);
+	Board parentBoard;
+	Scoreboard parent;
+	public ExitPanel(Board board, Scoreboard parent) {
+		this.parentBoard= board;
+		this.parent = parent;
 		setBackground(Color.BLACK);
 		
 		pan = new JPanel();
 		pan.setBackground(Color.BLACK);
-		pan.setLayout(null);
-		//new BoxLayout(pan, BoxLayout.Y_AXIS)
+		
+		Box textBox = Box.createHorizontalBox();
+		Box btnBox = Box.createHorizontalBox();
+
 		label = new JLabel("Successfully Save!");
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
 		
+		textBox.add(label);
+		
 		// resume button
 		mainMenu = new JButton("Main Menu");
-		mainMenu.addActionListener(this);
 		mainMenu.setBackground(Color.BLACK);
 		mainMenu.setForeground(Color.WHITE);
 		// exit button
 		exit = new JButton("EXIT");
-		exit.addActionListener(this);
 		exit.setBackground(Color.BLACK);
 		exit.setForeground(Color.WHITE);
 		
+		mainMenu.addActionListener(this);
+		exit.addActionListener(this);
 		
-		label.setBounds(92, 70, 150, 30);
-		mainMenu.setBounds(30, 170, 122, 30);
-		exit.setBounds(182, 170, 122, 30);
+		btnBox.add(mainMenu);
+		btnBox.add(Box.createHorizontalStrut(100));
+		btnBox.add(exit);
 		
-		pan.add(label);
-		pan.add(mainMenu);
-		pan.add(exit);
+		pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
+		pan.add(textBox);
+		pan.add(Box.createVerticalStrut(10));
+		pan.add(btnBox);
 		
 		add(pan);
-		
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == mainMenu) {
 			// mainMenu 띄우기
+			if(parentBoard != null) {
+				parentBoard.dispose();
+			}
+			parent.dispose();
 			new MainMenu().setVisible(true);
-			setVisible(false);
 		}
 		else if(e.getSource() == exit) {
 			System.exit(0);
 		}
 	}
-	
 }

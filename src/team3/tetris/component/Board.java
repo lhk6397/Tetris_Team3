@@ -62,7 +62,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 		
 		//Board display setting.
-		setSize(396,669);
+		setSize(415,669);
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
@@ -204,6 +204,17 @@ public class Board extends JFrame {
         statusBar.setText(status);
     }
 	
+	private void escape() {
+		timer.stop();
+		Scoreboard sb = null;
+		try {
+			sb = new Scoreboard(Board.this);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		sb.setVisible(true);
+	}
+	
 	private void placePreBlock() {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
@@ -249,7 +260,7 @@ public class Board extends JFrame {
 	
 	private void eraseNext() {
 		for(int i = 0; i < PREVIEWWIDTH; i++) {
-			for(int j=0; j<PREVIEWHEIGHT; j++) {
+			for(int j=0; j < PREVIEWHEIGHT; j++) {
 				previewBoard[j][i] = 0; 
 			}
 		}
@@ -288,7 +299,7 @@ public class Board extends JFrame {
 				timer.stop();
 				Scoreboard sb;
 				try {
-					sb = new Scoreboard();
+					sb = new Scoreboard(Board.this);
 					sb.setVisible(true);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -341,7 +352,6 @@ public class Board extends JFrame {
 		StyledDocument doc = previewPane.getStyledDocument();							
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		previewPane.setStyledDocument(doc);
-
 	}
 	
 	public void reset() {
@@ -380,21 +390,10 @@ public class Board extends JFrame {
 				//harDrop();
 				break;
 			case KeyEvent.VK_P:
-//				timer.stop();
-//				PauseDialog pd = new PauseDialog(Board.this);
-//				pd.setVisible(true);
-//				if(pd.getResume() == true) timer.start();
 				pause();
 				break;
 			case KeyEvent.VK_ESCAPE:
-				timer.stop();
-				Scoreboard sb = null;
-				try {
-					sb = new Scoreboard();
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-				sb.setVisible(true);
+				escape();
 				break;
 			}
 		}
