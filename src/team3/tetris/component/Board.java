@@ -56,7 +56,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 		
 		//Board display setting.
-		setSize(376,669);
+		setSize(415,669);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
@@ -218,7 +218,7 @@ public class Board extends JFrame {
 				timer.stop();
 				Scoreboard sb;
 				try {
-					sb = new Scoreboard();
+					sb = new Scoreboard(Board.this);
 					sb.setVisible(true);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -296,7 +296,7 @@ public class Board extends JFrame {
 				timer.stop();
 				Scoreboard sb = null;
 				try {
-					sb = new Scoreboard();
+					sb = new Scoreboard(Board.this);
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}

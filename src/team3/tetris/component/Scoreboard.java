@@ -1,124 +1,76 @@
 package team3.tetris.component;
 
-import team3.tetris.record.Record;
-import team3.tetris.record.RecordDTO;
-
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Container;
+import java.awt.Font;
 import java.io.IOException;
-import java.util.Date;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
+
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
 
-public class Scoreboard extends JFrame implements ActionListener{
-	JPanel Container, labelPanel, scorePanel, inputPanel;
-	JLabel label1, label2;
-	JTextField nameT;
-	JButton okBtn, noBtn;
-	public Scoreboard() throws IOException {
+public class Scoreboard extends JFrame{
+	Container con;
+	JLabel label;
+	ScoreTable scoretable;
+	InputPanel inputPanel;
+	ExitPanel exitPanel;
+	
+	Board parent;
+    
+	public void checkSubmission(boolean isSubmitted) {
+		if(isSubmitted) {
+			con.remove(inputPanel);
+			con.add(exitPanel);
+			setVisible(false);
+			setVisible(true);
+		} else {
+			if(parent != null) {
+				parent.dispose();
+			}
+			dispose();
+		}
+	}
+	
+	public Scoreboard(Board... parent) throws IOException {
 		super("ScoreBoard");
-		setSize(500, 500);
-		setLocationRelativeTo(null);
+		this.parent = parent.length > 0 ? parent[0] : null;
+		setSize(515, 500);
 		setBackground(Color.BLACK);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
 		
-		Container = new JPanel();
-		Container.setBackground(Color.BLACK);
-		Container.setLayout(new BoxLayout(Container, BoxLayout.Y_AXIS));
+		CompoundBorder border = BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(Color.GRAY, 10),
+				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
 		
-		labelPanel = new JPanel();
-		labelPanel.setBackground(Color.BLACK);
+		con = getContentPane();
 		
-		label1 = new JLabel("Game Over!");
-		label1.setHorizontalAlignment(JLabel.CENTER);
-		label1.setForeground(Color.WHITE);
+		label = new JLabel("Game Over!");
+		label.setFont(new Font("SansSerif", Font.BOLD, 30));
+		label.setBackground(Color.BLACK);
+		label.setOpaque(true);
+		label.setHorizontalAlignment(JLabel.CENTER);
+		label.setForeground(Color.WHITE);
 		
-		label2 = new JLabel("Scoreboard");
-		label2.setHorizontalAlignment(JLabel.LEFT);
-		label2.setForeground(Color.WHITE);
+		scoretable = new ScoreTable();
+		inputPanel = new InputPanel(this);
+		exitPanel = new ExitPanel(this.parent, this);
 		
-		labelPanel.add(label1);
-		labelPanel.add(label2);
-		scorePanel = new JPanel();
-		scorePanel.setBackground(Color.BLACK);
+		scoretable.setBorder(border);
+		setLayout(null);
+        
+		label.setBounds(0, 0, 500, 100);
+		scoretable.setBounds(0, 100, 500, 300);
+		inputPanel.setBounds(0, 400, 500, 100);
+		exitPanel.setBounds(0, 400, 500, 100);
 		
-		// JTable
-		String mode = "normal";
-		String level = "esay";
-		String header[] = {"순위", "이름", "점수", "시간"};
-//		String contents[][] = {
-//				{"1", "고지완", "100", "easy"}
-//				};
-
-		RecordDTO recordDTO= new RecordDTO(mode, level, "KJW", 77, null);
-		recordDTO.setTime(new Date());
-
-		Record record = new Record("normal", "easy");
-		record.fetchScoreBoard();
-		record.setScoreBoard(recordDTO);
-		JTable scoreboard = new JTable(record.toStringScoreBoard(), header);
-		scoreboard.setBackground(Color.BLACK);
-		scoreboard.setForeground(Color.WHITE);
-		/*
-		 * contents: 1인 정보 (순위, 이름, 점수, 난이도)
-		 * score.txt 파일을 불러와 2차원 배열 형태의 contents에 내용을 담도록 해야 함.
-		 */
-		scorePanel.add(scoreboard);
-		
-		inputPanel = new JPanel();
-		inputPanel.setBackground(Color.BLACK);
-		JLabel nameL = new JLabel("Input your name (1 ~ 20)");
-		nameL.setBackground(Color.BLACK);
-		nameL.setForeground(Color.WHITE);
-		nameT = new JTextField(20);
-		nameT.setBackground(Color.BLACK);
-		nameL.setForeground(Color.WHITE);
-		okBtn = new JButton("Ok");
-		okBtn.setBackground(Color.BLACK);
-		okBtn.setForeground(Color.WHITE);
-		noBtn = new JButton("Cancel");
-		noBtn.setBackground(Color.BLACK);
-		noBtn.setForeground(Color.WHITE);
-		
-		// Add ActionListener
-		okBtn.addActionListener(this);
-		noBtn.addActionListener(this);
-		
-		inputPanel.add(nameL);
-		inputPanel.add(nameT);
-		inputPanel.add(okBtn);
-		inputPanel.add(noBtn);
-		
-		Container.add(labelPanel);
-		Container.add(scorePanel);
-		Container.add(inputPanel);
-		add(Container);
+        con.add(label);
+        con.add(scoretable);
+        con.add(inputPanel);
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == okBtn) {
-			/*			 
-			 time = 
-			 name =  nameT.getText() 값
-			 score = ?
-			 difficulty = ?
-			 time, name, score, difficulty 값 scoreboard.txt에 저장
-			 
-			 save()
-			 read() // 파일 불러오기 -> 갱신된 결과 한번 더 보여줌
-			 */
-			ExitDialog ed = new ExitDialog(this); // 게임 종료 모달 창 띄우기
-			ed.setVisible(true);
-		}
-		else if(e.getSource() == noBtn) {
-			ExitDialog ed = new ExitDialog(this); // Successfully save가 아닌 다른 label 띄우기
-			ed.setVisible(true);
-		}
-	}
+	
 }
+
+
