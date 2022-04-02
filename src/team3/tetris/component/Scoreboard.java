@@ -17,6 +17,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 public class Scoreboard extends JFrame implements ActionListener{
+	//ScoreBoard의 로직을 조금 수정하겠습니다.
+	// 기존에 Gameover가 되었다면 player의 점수 반영 전 scoreboard와 input창이 같이 띄워졌는데 이를
+	// input 창과 사용자에 점수가 같이 먼저 보여지고 -> player가 input창에 아이디를 입력한후 enter를 누르면 -> 점수가 반영된 scoreboard를 띄우는 형식으로 수정하겠습니다.
 	JPanel Container, labelPanel, scorePanel, inputPanel;
 	JLabel label1, label2;
 	JTextField nameT;
@@ -25,10 +28,10 @@ public class Scoreboard extends JFrame implements ActionListener{
 		super("ScoreBoard");
 		setSize(500, 500);
 		setLocationRelativeTo(null);
-		setBackground(Color.BLACK);
+		setBackground(Color.WHITE);
 		
 		Container = new JPanel();
-		Container.setBackground(Color.BLACK);
+		Container.setBackground(Color.WHITE);
 		Container.setLayout(new BoxLayout(Container, BoxLayout.Y_AXIS));
 		
 		labelPanel = new JPanel();
@@ -37,13 +40,9 @@ public class Scoreboard extends JFrame implements ActionListener{
 		label1 = new JLabel("Game Over!");
 		label1.setHorizontalAlignment(JLabel.CENTER);
 		label1.setForeground(Color.WHITE);
-		
-		label2 = new JLabel("Scoreboard");
-		label2.setHorizontalAlignment(JLabel.LEFT);
-		label2.setForeground(Color.WHITE);
+		label1.setFont(label1.getFont().deriveFont(20.0f));
 		
 		labelPanel.add(label1);
-		labelPanel.add(label2);
 		scorePanel = new JPanel();
 		scorePanel.setBackground(Color.BLACK);
 		
@@ -103,16 +102,15 @@ public class Scoreboard extends JFrame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == okBtn) {
-			/*			 
-			 time = 
-			 name =  nameT.getText() 값
-			 score = ?
-			 difficulty = ?
-			 time, name, score, difficulty 값 scoreboard.txt에 저장
-			 
-			 save()
-			 read() // 파일 불러오기 -> 갱신된 결과 한번 더 보여줌
-			 */
+//			 time =
+//			 name =  nameT.getText() 값
+//			 score = ?
+//			 difficulty = ?
+//			 time, name, score, difficulty
+//
+//			 save()
+//			 read() // 파일 불러오기 -> 갱신된 결과 한번 더 보여줌
+
 			ExitDialog ed = new ExitDialog(this); // 게임 종료 모달 창 띄우기
 			ed.setVisible(true);
 		}
