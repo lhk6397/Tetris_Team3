@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -32,18 +33,25 @@ public class Board extends JFrame {
 	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
+	public static final int PREVIEWHEIGHT = 4;
+	public static final int PREVIEWWIDTH = 4;
 	public static final char BORDER_CHAR = 'X';
 	
-	private int score = 100;  // 점수칸 매꾸는 용도 
+	private int score = 100;  // 점수칸 매꾸는 용도
+	private boolean isPaused = false;
 	private JTextPane pane;
-	private JTextPane priviewPane;
+	private JTextPane previewPane;
 	private JTextPane scorePane;
+	private JTextPane statusBar;
 	private JTextPane background;
 	private int[][] board;
+	private int[][] previewBoard;
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
 	private Block curr;
+	private Block next;
+	String status;
 	int x = 3; //Default Position.
 	int y = 0;
 	
@@ -54,7 +62,8 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 		
 		//Board display setting.
-		setSize(376,669);
+		setSize(396,669);
+		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
@@ -67,26 +76,34 @@ public class Board extends JFrame {
 		this.getContentPane().add(pane);
 		
 		//PreviewBoard 
-		priviewPane = new JTextPane();
-		priviewPane.setEditable(false); 
-		priviewPane.setBackground(Color.white);
-		priviewPane.setBorder(border); 
-		priviewPane.setBounds(230, 0, 130, 130);
-		this.getContentPane().add(priviewPane);
+		previewPane = new JTextPane();
+		previewPane.setEditable(false); 
+		previewPane.setBackground(Color.BLACK);
+		previewPane.setBorder(border); 
+		previewPane.setBounds(250, 0, 130, 130);
+		this.getContentPane().add(previewPane);
 		
 		//ScoreBoard
 		scorePane = new JTextPane();
 		scorePane.setEditable(false);
 		scorePane.setBorder(border);
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(230, 130, 130, 50);	
+		scorePane.setBounds(250, 130, 130, 50);	
 		scorePane.setBorder(border2);
 		scorePane.setText("Score : "+ score);
 		this.getContentPane().add(scorePane);
 		
+		//statusBar
+		statusBar = new JTextPane();
+		statusBar.setEditable(false);
+		TitledBorder border3 = BorderFactory.createTitledBorder("Status");
+		statusBar.setBounds(250, 570, 130, 50);	
+		statusBar.setBorder(border3); 
+		this.getContentPane().add(statusBar);
+		
 		//Background
 		background = new JTextPane();
-		background.setBackground(Color.DARK_GRAY);		
+		background.setBackground(Color.WHITE);		
 		this.getContentPane().add(background);
 		 
 		//Document default style.
@@ -101,27 +118,57 @@ public class Board extends JFrame {
 		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				moveDown();
-				drawBoard();
+				if(!isPaused) {
+					moveDown();
+					drawBoard();
+				}
 			}
 		});
 		
 		// Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
+		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
 		playerKeyListener = new PlayerKeyListener();
 		addKeyListener(playerKeyListener);
 		setFocusable(true);
 		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
 	
-		// Create the first block and draw.
-		curr = getRandomBlock();
+		// Create block and draw.
+		curr = getRandomFirstBlock();
+		next = getRandomBlock();
 		placeBlock();
+		placePreBlock();
 		drawBoard();
+		drawPreviewBoard();
 		timer.start();
 	}
 
+	private Block getRandomFirstBlock() {
+		
+		Random rnd = new Random(System.currentTimeMillis()*11); // Generate Random Number.
+		int block = rnd.nextInt(6);
+		switch(block) {
+		case 0:
+			return new IBlock();
+		case 1:
+			return new JBlock();
+		case 2:
+			return new LBlock();
+		case 3:
+			return new ZBlock();
+		case 4:
+			return new SBlock();
+		case 5:
+			return new TBlock();
+		case 6:
+			return new OBlock();			
+		}
+		return new LBlock();
+		
+	}
+	
 	private Block getRandomBlock() {
-		Random rnd0 = new Random(System.currentTimeMillis());
+		
 		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
 		int block = rnd.nextInt(6);
 		switch(block) {
@@ -144,6 +191,35 @@ public class Board extends JFrame {
 		
 	}
 	
+	private void pause() {
+
+        isPaused = !isPaused;
+
+        if (isPaused) {
+        	status = "Pause!";
+        } else {
+        	status = "Resume!";
+        }
+        drawBoard();
+        statusBar.setText(status);
+    }
+	
+	private void placePreBlock() {
+		StyledDocument doc = pane.getStyledDocument();
+		SimpleAttributeSet styles = new SimpleAttributeSet();
+		StyleConstants.setForeground(styles, next.getColor());
+				
+		for(int j=0; j<next.height(); j++) {
+			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
+			int offset = rows * (WIDTH+3) + x + 1;
+			doc.setCharacterAttributes(offset, next.width(), styles, true);
+			for(int i=0; i<next.width(); i++) { // 블럭 배열을 previewboard 배열에 대입
+				previewBoard[j][i] = next.getShape(i, j);
+			}
+		}
+		
+	}
+	
 	private void placeBlock() {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
@@ -157,15 +233,24 @@ public class Board extends JFrame {
 			doc.setCharacterAttributes(offset, curr.width(), styles, true);
 			for(int i=0; i<curr.width(); i++) { // 블럭 배열을 board 배열에 대입
 				board[y+j][x+i] = curr.getShape(i, j);
-			}
+			}			
 		}
 		
+		placePreBlock();
 	}
 	
 	private void eraseCurr() { // Erase current block.
 		for(int i=x; i<x+curr.width(); i++) {
 			for(int j=y; j<y+curr.height(); j++) {
 				board[j][i] = 0;
+			}
+		}  		 
+	}
+	
+	private void eraseNext() {
+		for(int i = 0; i < PREVIEWWIDTH; i++) {
+			for(int j=0; j<PREVIEWHEIGHT; j++) {
+				previewBoard[j][i] = 0; 
 			}
 		}
 	}
@@ -175,12 +260,13 @@ public class Board extends JFrame {
 		if(y < HEIGHT - curr.height()) y++;
 		else {
 			placeBlock();
-			curr = getRandomBlock();
+			curr = next;
+			next = getRandomBlock();
 			x = 3;
 			y = 0;
-		}
+		} 
 		placeBlock();
-	}
+	} 
 	
 	protected void moveRight() {
 		eraseCurr();
@@ -200,8 +286,14 @@ public class Board extends JFrame {
 		for(int k = 0; k<WIDTH; ++k) {
 			if(board[0][k] == 1) {
 				timer.stop();
-				Scoreboard sb = new Scoreboard();
-				sb.setVisible(true);
+				Scoreboard sb;
+				try {
+					sb = new Scoreboard();
+					sb.setVisible(true);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -227,10 +319,34 @@ public class Board extends JFrame {
 		StyledDocument doc = pane.getStyledDocument();
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		pane.setStyledDocument(doc);
+		drawPreviewBoard();
+	}
+	
+	public void drawPreviewBoard() {
+		StringBuilder sb2 = new StringBuilder(); 
+		
+		sb2.append("\n");
+		for(int i=0; i < previewBoard.length; i++) {
+			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
+				if(previewBoard[i][j] == 1) {
+					sb2.append("O");
+				} else {
+					sb2.append(" ");
+				}
+			}
+			sb2.append("\n");
+		}
+
+		previewPane.setText(sb2.toString());
+		StyledDocument doc = previewPane.getStyledDocument();							
+		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
+		previewPane.setStyledDocument(doc);
+
 	}
 	
 	public void reset() {
 		this.board = new int[HEIGHT][WIDTH];
+		this.previewBoard = new int [PREVIEWHEIGHT][PREVIEWWIDTH];
 	}
 
 	public class PlayerKeyListener implements KeyListener { // key 입력
@@ -264,10 +380,11 @@ public class Board extends JFrame {
 				//harDrop();
 				break;
 			case KeyEvent.VK_P:
-				timer.stop();
-				PauseDialog pd = new PauseDialog(Board.this);
-				pd.setVisible(true);
-				if(pd.getResume() == true) timer.start();
+//				timer.stop();
+//				PauseDialog pd = new PauseDialog(Board.this);
+//				pd.setVisible(true);
+//				if(pd.getResume() == true) timer.start();
+				pause();
 				break;
 			case KeyEvent.VK_ESCAPE:
 				timer.stop();

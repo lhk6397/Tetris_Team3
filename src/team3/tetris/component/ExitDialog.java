@@ -61,7 +61,7 @@ public class ExitDialog extends Dialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == mainMenu) {
 			// mainMenu 띄우기
-			new MainMenu(null).setVisible(true);
+			new MainMenu().setVisible(true);
 			setVisible(false);
 		}
 		else if(e.getSource() == exit) {

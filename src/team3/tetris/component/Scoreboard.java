@@ -7,9 +7,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -57,15 +55,13 @@ public class Scoreboard extends JFrame implements ActionListener{
 //				{"1", "고지완", "100", "easy"}
 //				};
 
-		RecordDTO recordDTO= new RecordDTO(mode, level, "KDB", 77, null);
+		RecordDTO recordDTO= new RecordDTO(mode, level, "KJW", 77, null);
 		recordDTO.setTime(new Date());
 
 		Record record = new Record("normal", "easy");
 		record.fetchScoreBoard();
 		record.setScoreBoard(recordDTO);
-
 		JTable scoreboard = new JTable(record.toStringScoreBoard(), header);
-
 		scoreboard.setBackground(Color.BLACK);
 		scoreboard.setForeground(Color.WHITE);
 		/*
