@@ -170,7 +170,7 @@ public class Board extends JFrame {
 	private Block getRandomBlock() {
 		
 		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
-		int block = rnd.nextInt(6);
+		int block = rnd.nextInt(7);
 		switch(block) {
 		case 0:
 			return new IBlock();
@@ -247,6 +247,7 @@ public class Board extends JFrame {
 			}			
 		}
 		
+		eraseNext();
 		placePreBlock();
 	}
 	
