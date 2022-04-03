@@ -61,7 +61,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		start.setForeground(Color.WHITE);
 		
 		// settings button
-		settings = new JButton("SETTINGS인데 누르지말것");
+		settings = new JButton("SETTINGS");
 		settings.addActionListener(this);
 		settings.addFocusListener(new MyFocusListener());
 		settings.addKeyListener(playerKeyListener);
@@ -83,7 +83,6 @@ public class MainMenu extends JFrame implements ActionListener {
 		exit.addKeyListener(playerKeyListener);
 		exit.setBackground(Color.BLACK);
 		exit.setForeground(Color.WHITE);
-		
 		
 		label.setBounds(33, 0, 270, 30);
 		start.setBounds(33, 30, 270, 30);
@@ -110,7 +109,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		}
 		else if(e.getSource() == settings) {
 			// 세팅 인터페이스 띄우기
-			setVisible(false);
+			new Settings().setVisible(true);
 		}
 		else if(e.getSource() == scoreBoard) {
 			try {
