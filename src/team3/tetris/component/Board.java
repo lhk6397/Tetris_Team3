@@ -146,7 +146,7 @@ public class Board extends JFrame {
 	private Block getRandomFirstBlock() {
 		
 		Random rnd = new Random(System.currentTimeMillis()*11); // Generate Random Number.
-		int block = rnd.nextInt(6);
+		int block = rnd.nextInt(7);
 		switch(block) {
 		case 0:
 			return new IBlock();
