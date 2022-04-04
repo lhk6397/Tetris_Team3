@@ -170,7 +170,7 @@ public class Board extends JFrame {
 	private Block getRandomBlock() {
 		
 		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
-		int block = rnd.nextInt(6);
+		int block = rnd.nextInt(7);
 		switch(block) {
 		case 0:
 			return new IBlock();
@@ -218,7 +218,7 @@ public class Board extends JFrame {
 	private void placePreBlock() {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
-		StyleConstants.setForeground(styles, next.getColor());
+//		StyleConstants.setForeground(styles, next.getColor());
 				
 		for(int j=0; j<next.height(); j++) {
 			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
@@ -234,7 +234,7 @@ public class Board extends JFrame {
 	private void placeBlock() {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
-		StyleConstants.setForeground(styles, curr.getColor());
+//		StyleConstants.setForeground(styles, curr.getColor());
 		
 		gameOverCheck();
 		
@@ -247,6 +247,7 @@ public class Board extends JFrame {
 			}			
 		}
 		
+		eraseNext();
 		placePreBlock();
 	}
 	
@@ -310,6 +311,7 @@ public class Board extends JFrame {
 	}
 	
 	public void drawBoard() {
+		StyleConstants.setForeground(styleSet, curr.getColor());
 		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
 		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 윗쪽 벽
 		sb.append("\n");
@@ -334,6 +336,7 @@ public class Board extends JFrame {
 	}
 	
 	public void drawPreviewBoard() {
+		StyleConstants.setForeground(styleSet, next.getColor());
 		StringBuilder sb2 = new StringBuilder(); 
 		
 		sb2.append("\n");

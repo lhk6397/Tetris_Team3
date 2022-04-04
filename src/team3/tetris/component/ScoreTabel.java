@@ -13,6 +13,10 @@ import javax.swing.table.TableColumn;
 import team3.tetris.record.Record;
 import team3.tetris.record.RecordDTO;
 
+/*
+ * Scoreboard Frame에서 txt파일에 저장되어 있는 record를 테이블 형식으로 보여주는 JPanel
+ */
+
 class ScoreTable extends JPanel{
 	JLabel scoreLabel;
 	JTable scoreBoard;

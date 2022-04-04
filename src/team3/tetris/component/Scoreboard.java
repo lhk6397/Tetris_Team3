@@ -1,10 +1,10 @@
 package team3.tetris.component;
 
-import team3.tetris.record.RecordDTO;
-
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
@@ -12,25 +12,28 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.border.CompoundBorder;
 
+/*
+ * 클래스: Scoreboard
+ * 기능: 게임 종료 시 띄우는 Frame
+ */
+
 public class Scoreboard extends JFrame{
+	private boolean isSubmitted = false;
 	Container con;
 	JLabel label;
-	ScoreTable scoreTable;
+	ScoreTable scoretable;
 	InputPanel inputPanel;
 	ExitPanel exitPanel;
 	
 	Board parent;
-	String mode = "NORMAL";
-	String level = "EASY";
     
-	public void checkSubmission(boolean isSubmitted, RecordDTO record) throws IOException {
+	public void checkSubmission(boolean isSubmitted) {
+		this.isSubmitted = isSubmitted;
 		if(isSubmitted) {
 			con.remove(inputPanel);
 			con.add(exitPanel);
 			setVisible(false);
 			setVisible(true);
-			setNewScoreboard(scoreTable, record);
-
 		} else {
 			if(parent != null) {
 				parent.dispose();
@@ -46,6 +49,7 @@ public class Scoreboard extends JFrame{
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		addWindowFocusListener(new myWindowFocusListener());
 		
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
@@ -60,28 +64,45 @@ public class Scoreboard extends JFrame{
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
 		
-		scoreTable = new ScoreTable(mode, level);
+		scoretable = new ScoreTable();
 		inputPanel = new InputPanel(this);
 		exitPanel = new ExitPanel(this.parent, this);
 		
-		scoreTable.setBorder(border);
+		scoretable.setBorder(border);
 		setLayout(null);
         
 		label.setBounds(0, 0, 500, 100);
-		scoreTable.setBounds(0, 100, 500, 300);
+		scoretable.setBounds(0, 100, 500, 300);
 		inputPanel.setBounds(0, 400, 500, 100);
 		exitPanel.setBounds(0, 400, 500, 100);
 		
         con.add(label);
-        con.add(scoreTable);
+        con.add(scoretable);
         con.add(inputPanel);
 	}
+	
+	public class myWindowFocusListener implements WindowFocusListener {
 
-	//newScoreboard를 화면에 표시
-	public void setNewScoreboard(ScoreTable scoreTable, RecordDTO record) throws IOException {
-		scoreTable.updateScoreTable(record);
+		@Override
+		public void windowGainedFocus(WindowEvent e) {
+			// TODO Auto-generated method stub
+			if(isSubmitted) {
+				exitPanel.mainMenu.requestFocus();
+				exitPanel.curBtn = exitPanel.mainMenu;
+			} else {
+				inputPanel.nameT.requestFocus();
+				inputPanel.curBtn = inputPanel.okBtn;
+			}
+		}
+
+		@Override
+		public void windowLostFocus(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
-
+	
 }
 
 
