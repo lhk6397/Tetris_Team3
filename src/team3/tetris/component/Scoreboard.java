@@ -1,5 +1,7 @@
 package team3.tetris.component;
 
+import team3.tetris.record.RecordDTO;
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
@@ -13,18 +15,22 @@ import javax.swing.border.CompoundBorder;
 public class Scoreboard extends JFrame{
 	Container con;
 	JLabel label;
-	ScoreTable scoretable;
+	ScoreTable scoreTable;
 	InputPanel inputPanel;
 	ExitPanel exitPanel;
 	
 	Board parent;
+	String mode = "NORMAL";
+	String level = "EASY";
     
-	public void checkSubmission(boolean isSubmitted) {
+	public void checkSubmission(boolean isSubmitted, RecordDTO record) throws IOException {
 		if(isSubmitted) {
 			con.remove(inputPanel);
 			con.add(exitPanel);
 			setVisible(false);
 			setVisible(true);
+			setNewScoreboard(scoreTable, record);
+
 		} else {
 			if(parent != null) {
 				parent.dispose();
@@ -54,23 +60,28 @@ public class Scoreboard extends JFrame{
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
 		
-		scoretable = new ScoreTable();
+		scoreTable = new ScoreTable(mode, level);
 		inputPanel = new InputPanel(this);
 		exitPanel = new ExitPanel(this.parent, this);
 		
-		scoretable.setBorder(border);
+		scoreTable.setBorder(border);
 		setLayout(null);
         
 		label.setBounds(0, 0, 500, 100);
-		scoretable.setBounds(0, 100, 500, 300);
+		scoreTable.setBounds(0, 100, 500, 300);
 		inputPanel.setBounds(0, 400, 500, 100);
 		exitPanel.setBounds(0, 400, 500, 100);
 		
         con.add(label);
-        con.add(scoretable);
+        con.add(scoreTable);
         con.add(inputPanel);
 	}
-	
+
+	//newScoreboard를 화면에 표시
+	public void setNewScoreboard(ScoreTable scoreTable, RecordDTO record) throws IOException {
+		scoreTable.updateScoreTable(record);
+	}
+
 }
 
 

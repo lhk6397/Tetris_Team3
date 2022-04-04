@@ -1,8 +1,12 @@
 package team3.tetris.component;
 
+import team3.tetris.record.RecordDTO;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -19,6 +23,7 @@ public class InputPanel extends JPanel implements ActionListener {
 	JTextField nameT;
 	JButton okBtn;
 	JButton noBtn;
+	RecordDTO record;
 	
 	public InputPanel(Scoreboard parent){
 		this.parent = parent;
@@ -29,7 +34,7 @@ public class InputPanel extends JPanel implements ActionListener {
 		Box inputBox = Box.createHorizontalBox();
 		Box btnBox = Box.createHorizontalBox();
 		
-		nameL = new JLabel("Input your name (1 ~ 20): ");
+		nameL = new JLabel("Input your name (1 ~ 3): ");
 		nameL.setBackground(Color.BLACK);
 		nameL.setForeground(Color.WHITE);
 		
@@ -68,10 +73,17 @@ public class InputPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == okBtn) {
 			isSubmitted = true;
+			record = new RecordDTO(parent.mode, parent.level, nameT.getText(), 50, "");
+			record.setTime(new Date());
+			//user의 nameInput 도 전달
 		}
 		else if(e.getSource() == noBtn) {
 			isSubmitted = false;
 		}
-		parent.checkSubmission(isSubmitted);
+		try {
+			parent.checkSubmission(isSubmitted, record);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 }

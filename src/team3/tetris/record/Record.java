@@ -33,7 +33,7 @@ public class Record {
     }
 
     //새 레코드가 들어왔을 때 스코어보드에 기록하는 함수
-    public void setScoreBoard(RecordDTO new_record) {
+    public int setScoreBoard(RecordDTO new_record) {
         int new_recordScore = new_record.getScore();
         for (int i = 0; i < scoreBoard.size(); i++) {
             if (scoreBoard.get(i).getScore() <= new_recordScore) {
@@ -42,10 +42,11 @@ public class Record {
                 break;
             }
         }
+        return changedRank;
     }
 
     //setScoreBoard 이후 txt파일에 rewrite하는 함수
-    public void setScoreBoardAtTxt(ArrayList<RecordDTO> scoreBoard) {
+    public void setScoreBoardAtTxt() {
         String str;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileURL, false));
