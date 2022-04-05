@@ -1,14 +1,12 @@
 package team3.tetris.component;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.table.TableCellRenderer;
 
 import team3.tetris.record.Record;
 import team3.tetris.record.RecordDTO;
@@ -65,22 +63,31 @@ class ScoreTable extends JPanel{
 		remove(scoreBoard);
 		int rank = recordTable.setScoreBoard(newRecord);
 		recordTable.setScoreBoardAtTxt();
+		recordTable.clearScoreBoard();
 		recordTable.fetchScoreBoard();
-		new_scoreBoard = new JTable(recordTable.toStringScoreBoard(), new String[]{"순위", "이름", "점수", "시간"});
-		new_scoreBoard.setBackground(Color.BLACK);
-		new_scoreBoard.setForeground(Color.WHITE);
-
-//		TableColumn col = new_scoreBoard.getColumnModel().getColumn(rank);
-//		col.setCellRenderer(new MyRenderer(Color.BLACK, Color.YELLOW));
-
+		String header[] = {"순위", "이름", "점수", "시간"};
+		new_scoreBoard = new JTable(recordTable.toStringScoreBoard(), header) {
+			public Component prepareRenderer(TableCellRenderer renderer,
+											 int row, int column)
+			{
+				Component c = super.prepareRenderer(renderer, row, column);
+				Color color1 = Color.YELLOW;
+				Color color2 = Color.WHITE;
+				if(!c.getBackground().equals(getSelectionBackground())) {
+					Color coleur = (row == rank ? color1 : color2);
+					c.setBackground(Color.BLACK);
+					c.setForeground(coleur);
+					coleur = null;
+				}
+				return c;
+			}
+		};
 		add(new_scoreBoard);
+
+
+
+//		add(new_scoreBoard);
 	}
 }
-class MyRenderer extends DefaultTableCellRenderer {
-	Color bg, fg;
-	public MyRenderer(Color bg, Color fg) {
-		super();
-		this.bg = bg;
-		this.fg = fg;
-	}
-}
+
+

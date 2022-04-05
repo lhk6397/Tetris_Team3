@@ -1,5 +1,7 @@
 package team3.tetris.component;
 
+import team3.tetris.record.RecordDTO;
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
@@ -26,12 +28,17 @@ public class Scoreboard extends JFrame{
 	ExitPanel exitPanel;
 	
 	Board parent;
-    
-	public void checkSubmission(boolean isSubmitted) {
+	String mode = "normal";
+	String level = "easy";
+
+	public void checkSubmission(boolean isSubmitted, String nameT) throws IOException {
 		this.isSubmitted = isSubmitted;
 		if(isSubmitted) {
 			con.remove(inputPanel);
 			con.add(exitPanel);
+			RecordDTO newRecord = new RecordDTO(mode, level, nameT, 62, null );
+			newRecord.setTime();
+			scoretable.updateScoreTable(newRecord);
 			setVisible(false);
 			setVisible(true);
 		} else {
@@ -64,7 +71,7 @@ public class Scoreboard extends JFrame{
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
 		
-		scoretable = new ScoreTable();
+		scoretable = new ScoreTable(mode, level);
 		inputPanel = new InputPanel(this);
 		exitPanel = new ExitPanel(this.parent, this);
 		

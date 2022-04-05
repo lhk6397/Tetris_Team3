@@ -73,4 +73,7 @@ public class Record {
         }
         return table;
     }
+    public void clearScoreBoard() {
+        scoreBoard.clear();
+    }
 }
