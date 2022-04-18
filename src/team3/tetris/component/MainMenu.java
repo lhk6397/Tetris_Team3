@@ -104,7 +104,10 @@ public class MainMenu extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == start) {
-			new Board().setVisible(true);
+			//ItemBoard, Board 둘 중 하나
+			ItemBoard board = new ItemBoard();
+			board.setVisible(true);
+			board.run();
 			dispose();
 		}
 		else if(e.getSource() == settings) {
