@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -59,63 +60,21 @@ public class Board extends JFrame {
 	
 	public Board() {
 		super("Team 3 Tetris");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
-		
-		//Board display setting.
-		setSize(415,669);
-		setLocationRelativeTo(null);
-		CompoundBorder border = BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.GRAY, 10),
-				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
-		
-		pane = new JTextPane();
-		pane.setEditable(false);
-		pane.setBackground(Color.BLACK);
-		pane.setBorder(border);
-		pane.setBounds(0, 0, 230, 630);
-		this.getContentPane().add(pane);
-		
-		//PreviewBoard 
-		previewPane = new JTextPane();
-		previewPane.setEditable(false); 
-		previewPane.setBackground(Color.BLACK);
-		previewPane.setBorder(border); 
-		previewPane.setBounds(250, 0, 130, 130);
-		this.getContentPane().add(previewPane);
-		
-		//ScoreBoard
-		scorePane = new JTextPane();
-		scorePane.setEditable(false);
-		scorePane.setBorder(border);
-		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(250, 130, 130, 50);	
-		scorePane.setBorder(border2);
-		scorePane.setText("Score : "+ score);
-		this.getContentPane().add(scorePane);
-		
-		//statusBar
-		statusBar = new JTextPane();
-		statusBar.setEditable(false);
-		TitledBorder border3 = BorderFactory.createTitledBorder("Status");
-		statusBar.setBounds(250, 570, 130, 50);	
-		statusBar.setBorder(border3); 
-		this.getContentPane().add(statusBar);
-		
-		//Background
-		background = new JTextPane();
-		background.setBackground(Color.WHITE);		
-		this.getContentPane().add(background);
-		 
-		//Document default style.
-		styleSet = new SimpleAttributeSet();
-		StyleConstants.setFontSize(styleSet, 20);
-		StyleConstants.setFontFamily(styleSet, "MONOSPACED");
-		StyleConstants.setBold(styleSet, true);
-		StyleConstants.setForeground(styleSet, Color.WHITE);
-		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
-		
+		setDisplayAndLayout();
 		//Set timer for block drops.
-		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed 
+
+		// Initialize board for the game.
+		board = new int[HEIGHT][WIDTH];
+		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
+		playerKeyListener = new PlayerKeyListener();
+		addKeyListener(playerKeyListener);
+		setFocusable(true);
+		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
+	}
+
+	//timer 실행 및 placeBlock 실행
+	protected void run() {
+		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(!isPaused) {
@@ -124,17 +83,9 @@ public class Board extends JFrame {
 				}
 			}
 		});
-		
-		// Initialize board for the game.
-		board = new int[HEIGHT][WIDTH];
-		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
-		playerKeyListener = new PlayerKeyListener();
-		addKeyListener(playerKeyListener);
-		setFocusable(true);
-		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
-	
+
 		// Create block and draw.
-		curr = getRandomFirstBlock();
+		curr = getRandomBlock();
 		next = getRandomBlock();
 		placeBlock();
 		placePreBlock();
@@ -143,32 +94,65 @@ public class Board extends JFrame {
 		timer.start();
 	}
 
-	private Block getRandomFirstBlock() {
-		
-		Random rnd = new Random(System.currentTimeMillis()*11); // Generate Random Number.
-		int block = rnd.nextInt(6);
-		switch(block) {
-		case 0:
-			return new IBlock();
-		case 1:
-			return new JBlock();
-		case 2:
-			return new LBlock();
-		case 3:
-			return new ZBlock();
-		case 4:
-			return new SBlock();
-		case 5:
-			return new TBlock();
-		case 6:
-			return new OBlock();			
-		}
-		return new LBlock();
-		
+	//생성자에 있던 DisplaySetting 옮겼습니다.
+	public void setDisplayAndLayout() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
+
+		//Board display setting.
+		setSize(415,669);
+		setLocationRelativeTo(null);
+		CompoundBorder border = BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(Color.GRAY, 10),
+				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
+
+		pane = new JTextPane();
+		pane.setEditable(false);
+		pane.setBackground(Color.BLACK);
+		pane.setBorder(border);
+		pane.setBounds(0, 0, 230, 630);
+		this.getContentPane().add(pane);
+
+		//PreviewBoard
+		previewPane = new JTextPane();
+		previewPane.setEditable(false);
+		previewPane.setBackground(Color.BLACK);
+		previewPane.setBorder(border);
+		previewPane.setBounds(250, 0, 130, 130);
+		this.getContentPane().add(previewPane);
+
+		//ScoreBoard
+		scorePane = new JTextPane();
+		scorePane.setEditable(false);
+		scorePane.setBorder(border);
+		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
+		scorePane.setBounds(250, 130, 130, 50);
+		scorePane.setBorder(border2);
+		scorePane.setText("Score : "+ score);
+		this.getContentPane().add(scorePane);
+
+		//statusBar
+		statusBar = new JTextPane();
+		statusBar.setEditable(false);
+		TitledBorder border3 = BorderFactory.createTitledBorder("Status");
+		statusBar.setBounds(250, 570, 130, 50);
+		statusBar.setBorder(border3);
+		this.getContentPane().add(statusBar);
+
+		//Background
+		background = new JTextPane();
+		background.setBackground(Color.WHITE);
+		this.getContentPane().add(background);
+
+		//Document default style.
+		styleSet = new SimpleAttributeSet();
+		StyleConstants.setFontSize(styleSet, 20);
+		StyleConstants.setFontFamily(styleSet, "MONOSPACED");
+		StyleConstants.setBold(styleSet, true);
+		StyleConstants.setForeground(styleSet, Color.WHITE);
+		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 	}
-	
-	private Block getRandomBlock() {
-		
+
+	protected Block getRandomBlock() {
 		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
 		int block = rnd.nextInt(7);
 		switch(block) {
@@ -267,11 +251,36 @@ public class Board extends JFrame {
 		}
 	}
 
+	//4.18 - 김세한 - 블럭이동이 가능한지 검사하는 함수
+	protected boolean checkMoveDownOK() {
+		int j = curr.height();
+		//블럭이 땅에 닿았는지 검사
+		if (y == HEIGHT-j) return false;
+		//블럭이 다른블럭과 닿았는지 체크
+		for (int i = 0; i< curr.width(); i++) {
+			if (board[y+j][x+i] + board[y+j-1][x+i] > 1) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//git issues 해결중
+	public void rotateOK() {
+		curr.rotate();
+		if (x + curr.width() > WIDTH) {
+			x = x - curr.width(); return;
+		}
+	}
+
 	protected void moveDown() {
-		eraseCurr();
-		if(y < HEIGHT - curr.height()) y++;
+		if(checkMoveDownOK()) {
+			eraseCurr();
+			y++;
+		}
 		else {
 			placeBlock();
+			System.out.println(Arrays.deepToString(board));
 			curr = next;
 			next = getRandomBlock();
 			x = 3;
@@ -322,7 +331,7 @@ public class Board extends JFrame {
 					sb.append("O");
 				} else {
 					sb.append(" ");
-				}
+				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
 			}
 			sb.append(BORDER_CHAR); // 오른쪽 벽
 			sb.append("\n");
@@ -386,7 +395,7 @@ public class Board extends JFrame {
 				break;
 			case KeyEvent.VK_UP:
 				eraseCurr();
-				curr.rotate();
+				rotateOK();
 				drawBoard();
 				break;
 			case KeyEvent.VK_SPACE:
