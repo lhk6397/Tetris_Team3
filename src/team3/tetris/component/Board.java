@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -39,7 +38,7 @@ public class Board extends JFrame {
 	public static final int PREVIEWWIDTH = 4;
 	public static final char BORDER_CHAR = '▧';
 	
-	private int score = 100;  // 점수칸 매꾸는 용도
+	private GameScore gameScore; 
 	private boolean isPaused = false;
 	private JTextPane pane;
 	private JTextPane previewPane;
@@ -48,6 +47,7 @@ public class Board extends JFrame {
 	private JTextPane difficultyBar;
 	private JTextPane background;
 	private int[][] board;
+	private int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
 	private int[][] previewBoard;
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
@@ -64,17 +64,20 @@ public class Board extends JFrame {
 	
 	public Board() {
 		super("Team 3 Tetris");
-		setDisplayAndLayout();
 		//Set timer for block drops.
 		applyDifficulty();								// 난이도 설정 불러오기 
 
 		// Initialize board for the game.
+		gameScore = new GameScore();
 		board = new int[HEIGHT][WIDTH];
+		inactiveBlock = new int[HEIGHT][WIDTH];
 		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
 		playerKeyListener = new PlayerKeyListener();
 		addKeyListener(playerKeyListener);
 		setFocusable(true);
 		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
+		setDisplayAndLayout();
+
 	}
 
 	//timer 실행 및 placeBlock 실행
@@ -90,9 +93,8 @@ public class Board extends JFrame {
 		});
 
 		// Create block and draw.
-		curr = getRandomBlock(11, probability );
-		next = getRandomBlock(1 , probability );
-		placeBlock();
+		curr = getRandomBlock(11, probability);
+		next = getRandomBlock(1, probability);
 		placePreBlock();
 		drawBoard();
 		drawPreviewBoard();
@@ -132,7 +134,7 @@ public class Board extends JFrame {
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
 		scorePane.setBounds(280, 130, 130, 50);
 		scorePane.setBorder(border2);
-		scorePane.setText("Score : "+ score);
+		scorePane.setText("Score : "+ gameScore.getScore());
 		this.getContentPane().add(scorePane);
 
 		//statusBar
@@ -149,14 +151,14 @@ public class Board extends JFrame {
 		this.getContentPane().add(background);
 
 		//difficultyBar
-				difficultyBar = new JTextPane();
-				difficultyBar.setEditable(false);
-				TitledBorder border4 = BorderFactory.createTitledBorder("difficulty");
-				difficultyBar.setBounds(280, 520, 130, 50);	
-				// difficultyBar.setBounds(250, 520, 130, 50);
-				difficultyBar.setBorder(border4); 
-				difficultyBar.setText(Control.getDifficulty());		
-				this.getContentPane().add(difficultyBar);
+		difficultyBar = new JTextPane();
+		difficultyBar.setEditable(false);
+		TitledBorder border4 = BorderFactory.createTitledBorder("difficulty");
+		difficultyBar.setBounds(280, 520, 130, 50);	
+		// difficultyBar.setBounds(250, 520, 130, 50);
+		difficultyBar.setBorder(border4); 
+		difficultyBar.setText(Control.getDifficulty());		
+		this.getContentPane().add(difficultyBar);
 
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
@@ -228,18 +230,21 @@ public class Board extends JFrame {
 		
 	}
 	
-	private void placeBlock() {
+	private void placeBlock() { // 현재 블럭의 shape을 board 배열에 대입
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 //		StyleConstants.setForeground(styles, curr.getColor());
 		
 		gameOverCheck();
 		
-		for(int j=0; j<curr.height(); j++) {
+		for(int j=0; j<curr.height(); ++j) {
 			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
 			int offset = rows * (WIDTH+3) + x + 1;
 			doc.setCharacterAttributes(offset, curr.width(), styles, true);
-			for(int i=0; i<curr.width(); i++) { // 블럭 배열을 board 배열에 대입
+			for(int i=0; i<curr.width(); ++i) { // 블럭 배열을 board 배열에 대입
+				if(board[y+j][x+i] == 1) {
+					continue;
+				}
 				board[y+j][x+i] = curr.getShape(i, j);
 			}			
 		}
@@ -247,6 +252,22 @@ public class Board extends JFrame {
 		eraseNext();
 		placePreBlock();
 	}
+	
+	private void inactivateBlock() {
+		for(int j = 0; j < curr.height(); ++j) {
+			for(int i = 0; i < curr.width(); ++i) {
+				if(inactiveBlock[y+j][x+i] == 1) {
+					continue;
+				}
+				inactiveBlock[y+j][x+i] = curr.getShape(i, j);
+			}
+		}
+	}
+	
+	public void updateScore(){
+        String total = Integer.toString(gameScore.getScore());
+        scorePane.setText(total);
+    }
 	
 	private void eraseCurr() { // Erase current block.
 		for(int i=x; i<x+curr.width(); i++) {
@@ -265,19 +286,70 @@ public class Board extends JFrame {
 	}
 
 	//4.18 - 김세한 - 블럭이동이 가능한지 검사하는 함수
-	protected boolean checkMoveDownOK() {
-		int j = curr.height();
+	//4.19 - 고지완 - checkBottom으로 수정 및 오류 개선
+	protected boolean checkBottom() {
+		int w = curr.width();
+		int h = curr.height();
 		//블럭이 땅에 닿았는지 검사
-		if (y == HEIGHT-j) return false;
-		//블럭이 다른블럭과 닿았는지 체크
-		for (int i = 0; i< curr.width(); i++) {
-			if (board[y+j][x+i] + board[y+j-1][x+i] > 1) {
-				return false;
-			}
-		}
+		if (y + h >= HEIGHT) return false;
+		
+		int[][] currShape = curr.getBlockShape();
+		
+		//블럭의 각 요소가 다른블럭과 닿았는지 체크
+		for(int i = 0; i < w; ++i) {
+            for(int j = h-1; j >= 0; --j) {
+                if(currShape[j][i] > 0) {
+                    if(inactiveBlock[y+j+1][x+i] > 0) {
+                    	return false;
+                    }
+                }
+            }
+        }
 		return true;
 	}
-
+	
+	protected boolean checkRight() {
+		int w = curr.width();
+		int h = curr.height();
+		//블럭이 땅에 닿았는지 검사
+		if (x + curr.width() >= WIDTH) return false;
+		
+		int[][] currShape = curr.getBlockShape();
+		
+		//블럭의 각 요소가 다른블럭과 닿았는지 체크
+		for(int j = 0; j < h; ++j) {
+            for(int i = w-1; i >= w; --i) {
+                if(currShape[j][i] > 0) {
+                    if(inactiveBlock[y+j][x+i+1] > 0) {
+                    	return false;
+                    }
+                }
+            }
+        }
+		return true;
+	}
+	
+	protected boolean checkLeft() {
+		int w = curr.width();
+		int h = curr.height();
+		//블럭이 땅에 닿았는지 검사
+		if (x <= 0) return false;
+		
+		int[][] currShape = curr.getBlockShape();
+		
+		//블럭의 각 요소가 다른블럭과 닿았는지 체크
+		for(int j = 0; j < j; ++j) {
+            for(int i = 0; i < w; ++i) {
+                if(currShape[j][i] > 0) {
+                    if(inactiveBlock[y+j][x+i-1] > 0) {
+                    	return false;
+                    }
+                }
+            }
+        }
+		return true;
+	}
+	
 	//git issues 해결중
 	public void rotateOK() {
 		curr.rotate();
@@ -287,32 +359,38 @@ public class Board extends JFrame {
 	}
 
 	protected void moveDown() {
-		if(checkMoveDownOK()) {
+		if(checkBottom()) {
 			eraseCurr();
 			y++;
+			gameScore.increaseScore(); // score 증가
+			updateScore(); 
+			placeBlock();
 		}
 		else {
-			placeBlock();
+			// constantBlock에 블럭 모양 반영
+			inactivateBlock();
 			curr = next;
 			next = getRandomBlock(1,probability);
 			x = 3;
 			y = 0;
-		} 
-		placeBlock();
+			placeBlock();
+		}
 	} 
 	
 	protected void moveRight() {
-		eraseCurr();
-		if(x < WIDTH - curr.width()) x++;
-		placeBlock();
+		if(checkRight()) {
+			eraseCurr();
+			x++;
+			placeBlock();
+		}
 	}
 
 	protected void moveLeft() {
-		eraseCurr();
-		if(x > 0) {
+		if(checkLeft()) {
+			eraseCurr();
 			x--;
+			placeBlock();
 		}
-		placeBlock();
 	}
 
 	public void gameOverCheck() {
@@ -327,6 +405,7 @@ public class Board extends JFrame {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				return;
 			}
 		}
 	}
@@ -407,7 +486,8 @@ public class Board extends JFrame {
 				break;
 			case KeyEvent.VK_UP:
 				eraseCurr();
-				rotateOK();
+				curr.rotate();
+				//rotateOK();
 				drawBoard();
 				break;
 			case KeyEvent.VK_SPACE:

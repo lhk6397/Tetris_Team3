@@ -4,6 +4,5 @@ module Tetris_Team3 {
 	exports team3.tetris.blocks;
 
 	requires java.desktop;
-//	requires junit;
 //	requires org.junit.jupiter.api;
 }
