@@ -1,7 +1,5 @@
 package team3.tetris.component;
 
-import team3.tetris.record.RecordDTO;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

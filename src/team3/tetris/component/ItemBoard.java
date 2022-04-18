@@ -12,19 +12,19 @@ public class ItemBoard extends Board {
 
 
     @Override
-    protected Block getRandomBlock() {
+    protected Block getRandomBlock(int num, int blocks) {
         count ++;
         if (count % 10 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*11);
-            int num = rnd.nextInt(2);
-            switch (num) {
+            int number = rnd.nextInt(2);
+            switch (number) {
                 case 0:
-                    return createItemLineClear(super.getRandomBlock());
+                    return createItemLineClear(super.getRandomBlock(11, probability));
                 case 1: //다른 아이템 구상
                 case 2:
                     return createWeightBlock();
             }
-        } return super.getRandomBlock();
+        } return super.getRandomBlock(11, probability);
     }
 
     //LineClear block 생성 함수

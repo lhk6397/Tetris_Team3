@@ -27,6 +27,7 @@ import team3.tetris.blocks.OBlock;
 import team3.tetris.blocks.SBlock;
 import team3.tetris.blocks.TBlock;
 import team3.tetris.blocks.ZBlock;
+import team3.tetris.control.Control;
 
 public class Board extends JFrame {
 
@@ -36,7 +37,7 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final int PREVIEWHEIGHT = 4;
 	public static final int PREVIEWWIDTH = 4;
-	public static final char BORDER_CHAR = 'X';
+	public static final char BORDER_CHAR = '▧';
 	
 	private int score = 100;  // 점수칸 매꾸는 용도
 	private boolean isPaused = false;
@@ -44,6 +45,7 @@ public class Board extends JFrame {
 	private JTextPane previewPane;
 	private JTextPane scorePane;
 	private JTextPane statusBar;
+	private JTextPane difficultyBar;
 	private JTextPane background;
 	private int[][] board;
 	private int[][] previewBoard;
@@ -52,16 +54,19 @@ public class Board extends JFrame {
 	private Timer timer;
 	private Block curr;
 	private Block next;
-	String status;
+	private String status;
+	
 	int x = 3; //Default Position.
 	int y = 0;
 	
-	private static final int initInterval = 1000;
+	public int probability = 70;     // I 블럭 관련, easy : 72, normal : 70, hard 68
+	public int initInterval = 1000;  // 테트리스 속도 관련  easy : 800, normal : 1000, hard : 1200 
 	
 	public Board() {
 		super("Team 3 Tetris");
 		setDisplayAndLayout();
 		//Set timer for block drops.
+		applyDifficulty();								// 난이도 설정 불러오기 
 
 		// Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
@@ -85,8 +90,8 @@ public class Board extends JFrame {
 		});
 
 		// Create block and draw.
-		curr = getRandomBlock();
-		next = getRandomBlock();
+		curr = getRandomBlock(11, probability );
+		next = getRandomBlock(1 , probability );
 		placeBlock();
 		placePreBlock();
 		drawBoard();
@@ -99,7 +104,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 
 		//Board display setting.
-		setSize(415,669);
+		setSize(445,669);
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, 10),
@@ -109,7 +114,7 @@ public class Board extends JFrame {
 		pane.setEditable(false);
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
-		pane.setBounds(0, 0, 230, 630);
+		pane.setBounds(0, 0, 260, 630);
 		this.getContentPane().add(pane);
 
 		//PreviewBoard
@@ -117,7 +122,7 @@ public class Board extends JFrame {
 		previewPane.setEditable(false);
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border);
-		previewPane.setBounds(250, 0, 130, 130);
+		previewPane.setBounds(280, 0, 130, 130);
 		this.getContentPane().add(previewPane);
 
 		//ScoreBoard
@@ -125,7 +130,7 @@ public class Board extends JFrame {
 		scorePane.setEditable(false);
 		scorePane.setBorder(border);
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(250, 130, 130, 50);
+		scorePane.setBounds(280, 130, 130, 50);
 		scorePane.setBorder(border2);
 		scorePane.setText("Score : "+ score);
 		this.getContentPane().add(scorePane);
@@ -134,7 +139,7 @@ public class Board extends JFrame {
 		statusBar = new JTextPane();
 		statusBar.setEditable(false);
 		TitledBorder border3 = BorderFactory.createTitledBorder("Status");
-		statusBar.setBounds(250, 570, 130, 50);
+		statusBar.setBounds(280, 570, 130, 50);
 		statusBar.setBorder(border3);
 		this.getContentPane().add(statusBar);
 
@@ -143,36 +148,44 @@ public class Board extends JFrame {
 		background.setBackground(Color.WHITE);
 		this.getContentPane().add(background);
 
+		//difficultyBar
+				difficultyBar = new JTextPane();
+				difficultyBar.setEditable(false);
+				TitledBorder border4 = BorderFactory.createTitledBorder("difficulty");
+				difficultyBar.setBounds(280, 520, 130, 50);	
+				// difficultyBar.setBounds(250, 520, 130, 50);
+				difficultyBar.setBorder(border4); 
+				difficultyBar.setText(Control.getDifficulty());		
+				this.getContentPane().add(difficultyBar);
+
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, 20);
-		StyleConstants.setFontFamily(styleSet, "MONOSPACED");
+		StyleConstants.setFontFamily(styleSet, "DIALOG");
 		StyleConstants.setBold(styleSet, true);
-		StyleConstants.setForeground(styleSet, Color.WHITE);
+		//StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 	}
 
-	protected Block getRandomBlock() {
-		Random rnd = new Random(System.currentTimeMillis()); // Generate Random Number.
-		int block = rnd.nextInt(7);
-		switch(block) {
-		case 0:
-			return new IBlock();
-		case 1:
-			return new JBlock();
-		case 2:
-			return new LBlock();
-		case 3:
-			return new ZBlock();
-		case 4:
-			return new SBlock();
-		case 5:
-			return new TBlock();
-		case 6:
-			return new OBlock();			
-		}
-		return new LBlock();
-		
+	protected Block getRandomBlock(int num, int blocks) {
+		Random rnd = new Random(System.currentTimeMillis()*num); // Generate Random Number. // num : block과 previewBlock 구분을 위해 소수 곱하기
+		int block = rnd.nextInt(blocks);
+
+		if(block < 10) return new OBlock();
+		else if (block <20) return new JBlock();
+		else if (block <30) return new LBlock();
+		else if (block <40) return new ZBlock();
+		else if (block <50) return new SBlock();
+		else if (block <60) return new TBlock();
+		else return new IBlock();
+	}
+	
+	private void applyDifficulty() {
+		Control.setDifficulty(2);				// 처음 설정창과 연결하기 () 부분 난이도 설정 
+		Control.setSpeed();
+		Control.setProbability();
+		initInterval = Control.getSpeed();
+		probability = Control.getProbability();
 	}
 	
 	private void pause() {
@@ -280,9 +293,8 @@ public class Board extends JFrame {
 		}
 		else {
 			placeBlock();
-			System.out.println(Arrays.deepToString(board));
 			curr = next;
-			next = getRandomBlock();
+			next = getRandomBlock(1,probability);
 			x = 3;
 			y = 0;
 		} 
@@ -328,9 +340,9 @@ public class Board extends JFrame {
 			sb.append(BORDER_CHAR); // 왼쪽 벽
 			for(int j=0; j < board[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(board[i][j] == 1) {
-					sb.append("O");
+					sb.append("■");
 				} else {
-					sb.append(" ");
+					sb.append("   ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
 			}
 			sb.append(BORDER_CHAR); // 오른쪽 벽
@@ -352,9 +364,9 @@ public class Board extends JFrame {
 		for(int i=0; i < previewBoard.length; i++) {
 			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(previewBoard[i][j] == 1) {
-					sb2.append("O");
+					sb2.append("■");
 				} else {
-					sb2.append(" ");
+					sb2.append("   ");
 				}
 			}
 			sb2.append("\n");
