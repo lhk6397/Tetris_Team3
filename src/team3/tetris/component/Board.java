@@ -26,7 +26,7 @@ import team3.tetris.blocks.OBlock;
 import team3.tetris.blocks.SBlock;
 import team3.tetris.blocks.TBlock;
 import team3.tetris.blocks.ZBlock;
-import team3.tetris.control.Control;
+import team3.tetris.control.Difficulty;
 
 public class Board extends JFrame {
 
@@ -34,8 +34,8 @@ public class Board extends JFrame {
 	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
-	public static final int PREVIEWHEIGHT = 4;
-	public static final int PREVIEWWIDTH = 4;
+	public static final int PREVIEWHEIGHT = 5;
+	public static final int PREVIEWWIDTH = 5;
 	public static final char BORDER_CHAR = '▧';
 	
 	private GameScore gameScore; 
@@ -157,14 +157,14 @@ public class Board extends JFrame {
 		difficultyBar.setBounds(280, 520, 130, 50);	
 		// difficultyBar.setBounds(250, 520, 130, 50);
 		difficultyBar.setBorder(border4); 
-		difficultyBar.setText(Control.getDifficulty());		
+		difficultyBar.setText(Difficulty.getDifficulty());		
 		this.getContentPane().add(difficultyBar);
 
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, 20);
-		StyleConstants.setFontFamily(styleSet, "DIALOG");
-		StyleConstants.setBold(styleSet, true);
+		StyleConstants.setFontFamily(styleSet, "Dialog");
+		//tyleConstants.setBold(styleSet, true);
 		//StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 	}
@@ -183,11 +183,11 @@ public class Board extends JFrame {
 	}
 	
 	private void applyDifficulty() {
-		Control.setDifficulty(2);				// 처음 설정창과 연결하기 () 부분 난이도 설정 
-		Control.setSpeed();
-		Control.setProbability();
-		initInterval = Control.getSpeed();
-		probability = Control.getProbability();
+		Difficulty.setDifficulty(2);				// 처음 설정창과 연결하기 () 부분 난이도 설정 
+		Difficulty.setSpeed();
+		Difficulty.setProbability();
+		initInterval = Difficulty.getSpeed();
+		probability = Difficulty.getProbability();
 	}
 	
 	private void pause() {

@@ -1,16 +1,20 @@
 package team3.tetris.component;
 
+import team3.tetris.control.Difficulty;
+
 public class GameScore {
 	
+	Difficulty difficulty;
     private int score; 
     private int speed; // 난이도에 따른 속도
     private int addition; // 추가 점수
 
     public GameScore() 
     {
+    	difficulty = new Difficulty();
         this.score = 0; 
         this.addition = 5;
-        this.speed = 0;
+        this.speed = difficulty.getSpeed();
     }
 
 //    public GameScore(int score, int addition) { // 난이도
