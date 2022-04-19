@@ -57,7 +57,7 @@ public class RecordDTO {
         return time;
     }
 
-    public void setTime(Date date) {
-        this.time = simpleDateFormat.format(date);
+    public void setTime() {
+        this.time = simpleDateFormat.format(new Date());
     }
 }

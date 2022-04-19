@@ -2,7 +2,6 @@ package team3.tetris.component;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -11,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
-import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,22 +18,28 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 
 /*
- * 클래스: MainMenu
- * 기능: 게임 시작 시 띄우는 Main menu
+ * 클래스: ModeSelect
+ * 기능: Start시 모드 선택 창을 띄움
  */
 
-public class MainMenu extends JFrame implements ActionListener {
+public class ModeSelect extends JFrame implements ActionListener {
 	private KeyListener playerKeyListener;
 	JPanel pan;
 	JLabel label;
-	JButton start;
-	JButton settings;
-	JButton scoreBoard;
+	JButton easy;
+	JButton normal;
+	JButton hard;
+	JButton ItemMode;
+	JButton scoreBoardReset;
+	JButton colorBlind;
+	JButton settingsReset;
 	JButton exit;
 	JButton curBtn;
-
-	public MainMenu() {
-		super("StartMenu");
+    
+	
+	
+	public ModeSelect() {
+		super("ModeSelect");
 		setSize(350, 300);
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
@@ -45,82 +49,85 @@ public class MainMenu extends JFrame implements ActionListener {
 		
 		pan = new JPanel();
 		pan.setBackground(Color.BLACK);
-		pan.setLayout(new GridLayout(0,1));
+		pan.setLayout(null);
 		
-		label = new JLabel("Tetris");
+		label = new JLabel("ModeSelect");
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
-		label.setFont(new Font("SansSerif", Font.BOLD, 30));
-		
-		// start button
-		start = new JButton("START");
-		start.addActionListener(this);
-		start.addFocusListener(new MyFocusListener());
-		start.addKeyListener(playerKeyListener);
-		start.setBackground(Color.BLACK);
-		start.setForeground(Color.WHITE);
-		
-		// settings button
-		settings = new JButton("SETTINGS");
-		settings.addActionListener(this);
-		settings.addFocusListener(new MyFocusListener());
-		settings.addKeyListener(playerKeyListener);
-		settings.setBackground(Color.BLACK);
-		settings.setForeground(Color.WHITE);
+		label.setFont(new Font("SansSerif", Font.BOLD, 20));
 
-		// scoreBoard button
-		scoreBoard = new JButton("SCOREBOARD");
-		scoreBoard.addActionListener(this);
-		scoreBoard.addFocusListener(new MyFocusListener());
-		scoreBoard.addKeyListener(playerKeyListener);
-		scoreBoard.setBackground(Color.BLACK);
-		scoreBoard.setForeground(Color.WHITE);
+		// easy button
+		easy = new JButton("EASY");
+		easy.addActionListener(this);
+		easy.addFocusListener(new MyFocusListener());
+		easy.addKeyListener(playerKeyListener);
+		easy.setBackground(Color.BLACK);
+		easy.setForeground(Color.WHITE);
+		
+		// normal button
+		normal = new JButton("NORMAL");
+		normal.addActionListener(this);
+		normal.addFocusListener(new MyFocusListener());
+		normal.addKeyListener(playerKeyListener);
+		normal.setBackground(Color.BLACK);
+		normal.setForeground(Color.WHITE);
+		
+		// hard button
+		hard = new JButton("HARD");
+		hard.addActionListener(this);
+		hard.addFocusListener(new MyFocusListener());
+		hard.addKeyListener(playerKeyListener);
+		hard.setBackground(Color.BLACK);
+		hard.setForeground(Color.WHITE);
+		
+		// ItemMode button
+		ItemMode = new JButton("ItemMode");
+		ItemMode.addActionListener(this);
+		ItemMode.addFocusListener(new MyFocusListener());
+		ItemMode.addKeyListener(playerKeyListener);
+		ItemMode.setBackground(Color.BLACK);
+		ItemMode.setForeground(Color.WHITE);
 		
 		// exit button
 		exit = new JButton("EXIT");
 		exit.addActionListener(this);
-		exit.addFocusListener(new MyFocusListener());
-		exit.addKeyListener(playerKeyListener);
 		exit.setBackground(Color.BLACK);
 		exit.setForeground(Color.WHITE);
 		
 		label.setBounds(33, 0, 270, 30);
-		start.setBounds(33, 30, 270, 30);
-		settings.setBounds(33, 70, 270, 30);
-		scoreBoard.setBounds(33, 110, 270, 30);
-		exit.setBounds(33, 150, 270, 30);
+		easy.setBounds(33, 30, 90, 30);
+		normal.setBounds(123, 30, 90, 30);
+		hard.setBounds(213, 30, 90, 30);
+		ItemMode.setBounds(33, 70, 270, 30);
+		exit.setBounds(33, 230, 270, 30);
 		
 		pan.add(label);
-		pan.add(start);
-		pan.add(settings);
-		pan.add(scoreBoard);
+		pan.add(easy);
+		pan.add(normal);
+		pan.add(hard);
+		pan.add(ItemMode);
 		pan.add(exit);
 		
 		add(pan);
 		
-		start.requestFocus();
+		easy.requestFocus();
+	
+
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == start) {
-			//ItemBoard, Board 둘 중 하나
-			ItemBoard board = new ItemBoard();
-			board.setVisible(true);
-			board.run();
-			dispose();
+		if(e.getSource() == easy) {
+			new Board().setVisible(true);
 		}
-		else if(e.getSource() == settings) {
-			// 세팅 인터페이스 띄우기
-			new Settings().setVisible(true);
+		else if(e.getSource() == normal) {
+			new Board().setVisible(true);
 		}
-		else if(e.getSource() == scoreBoard) {
-			try {
-				new Scoreboard().setVisible(true);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			setVisible(false);
+		else if(e.getSource() == hard) {
+			new Board().setVisible(true);
+		}
+		else if(e.getSource() == ItemMode) {
+			System.exit(0);
 		}
 		else if(e.getSource() == exit) {
 			System.exit(0);
@@ -177,7 +184,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		@Override
 		public void windowGainedFocus(WindowEvent e) {
 			// TODO Auto-generated method stub
-			start.requestFocus();
+			easy.requestFocus();
 		}
 
 		@Override

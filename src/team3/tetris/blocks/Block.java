@@ -14,6 +14,11 @@ public abstract class Block {
 		};
 		color = Color.YELLOW;
 	}
+	public void setShape(int[][] shape) { this.shape = shape; }
+	
+	public int[][] getBlockShape(){
+		return shape;
+	}
 	
 	public int getShape(int x, int y) {
 		return shape[y][x];
