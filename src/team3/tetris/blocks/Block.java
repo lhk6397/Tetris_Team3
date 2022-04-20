@@ -29,13 +29,14 @@ public abstract class Block {
 	}
 	
 	public void rotate() { // 블럭 90도 회전
-		int n = shape.length;
-		int m = shape[0].length;
-		int[][] rotate = new int[m][n];
+		int w = shape[0].length;
+		int h = shape.length;
+	
+		int[][] rotate = new int[w][h];
 		
 		for(int i =0; i<rotate.length; ++i) {
 			for(int j =0; j< rotate[i].length; ++j) {
-				rotate[i][j] = shape[n-1-j][i];
+				rotate[i][j] = shape[h-1-j][i];
 			}
 		}
 		
@@ -50,5 +51,13 @@ public abstract class Block {
 		if(shape.length > 0)
 			return shape[0].length;
 		return 0;
+	}
+	
+	public Block clone() {
+		Block temp = new OBlock();
+		temp.shape = this.getBlockShape();
+		temp.color = this.getColor();
+		
+		return temp;
 	}
 }

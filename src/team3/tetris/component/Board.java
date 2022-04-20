@@ -36,7 +36,7 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final int PREVIEWHEIGHT = 5;
 	public static final int PREVIEWWIDTH = 5;
-	public static final char BORDER_CHAR = '▧';
+	public static final char BORDER_CHAR = '○';
 	
 	private Difficulty difficulty;
 	private GameScore gameScore; 
@@ -145,20 +145,20 @@ public class Board extends JFrame {
 		statusBar.setBorder(border3);
 		this.getContentPane().add(statusBar);
 
-		//Background
-		background = new JTextPane();
-		background.setBackground(Color.WHITE);
-		this.getContentPane().add(background);
-
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
 		TitledBorder border4 = BorderFactory.createTitledBorder("difficulty");
 		difficultyBar.setBounds(280, 520, 130, 50);	
-		// difficultyBar.setBounds(250, 520, 130, 50);
 		difficultyBar.setBorder(border4); 
 		difficultyBar.setText(difficulty.getStringDifficulty());		
 		this.getContentPane().add(difficultyBar);
+
+		//Background
+		background = new JTextPane();
+		background.setBackground(Color.WHITE);
+		this.getContentPane().add(background);
+
 
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
@@ -169,9 +169,9 @@ public class Board extends JFrame {
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 	}
 
-	protected Block getRandomBlock(int num, int blocks) {
+	protected Block getRandomBlock(int num, int probability) {
 		Random rnd = new Random(System.currentTimeMillis()*num); // Generate Random Number. // num : block과 previewBlock 구분을 위해 소수 곱하기
-		int block = rnd.nextInt(blocks);
+		int block = rnd.nextInt(probability);
 
 		if(block < 10) return new OBlock();
 		else if (block <20) return new JBlock();
@@ -183,7 +183,7 @@ public class Board extends JFrame {
 	}
 	
 	private void applyDifficulty() {
-		difficulty = new Difficulty(2);			// 처음 설정창과 연결하기 () 부분 난이도 설정 
+		difficulty = new Difficulty(0);			// 처음 설정창과 연결하기 () 부분 난이도 설정 
 		initInterval = difficulty.getSpeed();
 		probability = difficulty.getProbability();
 	}
@@ -286,11 +286,11 @@ public class Board extends JFrame {
 	
 	// 줄 삭제
 	private void lineClear() {
-		int combo = 0;
+		// int combo = 0;
 		for(int j = HEIGHT - 1; j >0; --j) {
 			while(checkLineFull(j)) {
 
-				combo++; // 삭제되는 줄의 수
+			//	combo++; // 삭제되는 줄의 수
 				
 				// inactiveBlock[][] 한 칸씩 내려오기
 								
@@ -332,7 +332,9 @@ public class Board extends JFrame {
 		int w = curr.width();
 		int h = curr.height();
 		//블럭이 땅에 닿았는지 검사
-		if (y + h >= HEIGHT) return false;
+		if (y + h >= HEIGHT) {
+			return false;
+		}
 		
 		int[][] currShape = curr.getBlockShape();
 		
@@ -353,13 +355,15 @@ public class Board extends JFrame {
 		int w = curr.width();
 		int h = curr.height();
 		//블럭이 땅에 닿았는지 검사
-		if (x + curr.width() >= WIDTH) return false;
+		if (x + w >= WIDTH) {
+			return false;
+		}
 		
 		int[][] currShape = curr.getBlockShape();
 		
 		//블럭의 각 요소가 다른블럭과 닿았는지 체크
 		for(int j = 0; j < h; ++j) {
-            for(int i = w-1; i >= w; --i) {
+            for(int i = w-1; i >= 0; --i) {
                 if(currShape[j][i] > 0) {
                     if(inactiveBlock[y+j][x+i+1] > 0) {
                     	return false;
@@ -374,12 +378,14 @@ public class Board extends JFrame {
 		int w = curr.width();
 		int h = curr.height();
 		//블럭이 땅에 닿았는지 검사
-		if (x <= 0) return false;
+		if (x <= 0) {
+			return false;
+		}
 		
 		int[][] currShape = curr.getBlockShape();
 		
 		//블럭의 각 요소가 다른블럭과 닿았는지 체크
-		for(int j = 0; j < j; ++j) {
+		for(int j = 0; j < h; ++j) {
             for(int i = 0; i < w; ++i) {
                 if(currShape[j][i] > 0) {
                     if(inactiveBlock[y+j][x+i-1] > 0) {
@@ -392,11 +398,32 @@ public class Board extends JFrame {
 	}
 	
 	// git issues 해결중
-	public void rotateOK() {
-		curr.rotate();
-		if (x + curr.width() > WIDTH) {
-			x = x - curr.width(); return;
+	public boolean rotateCheck() {
+		Block temp = curr.clone();
+		temp.rotate();
+		int w = temp.width();
+		int h = temp.height();
+		
+		int[][] shape = temp.getBlockShape();
+		
+		if(y + h>= HEIGHT) {
+			--y;
 		}
+		
+		if(x + w >= WIDTH) {
+			--x;
+		}
+		
+		
+		for(int j = h-1; j >= 0; --j) {
+			for(int i = 0; i < w; ++i) {
+				if(inactiveBlock[y+j][x+i] > 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+		
 	}
 
 	private void hardDrop() {
@@ -412,14 +439,24 @@ public class Board extends JFrame {
 				inactivateBlock();
 				while(lineCount > 0) {
 					gameScore.addScore();
-					updateScore();
 					lineCount--;
 				}
+				updateScore();
 				return;
 			}
 		}
 		
 		
+		// hardDrop 후 방향키 입력 시 분신술? drawBoard()
+		
+	}
+	
+	protected void rotate() {
+		if(rotateCheck()) {
+			eraseCurr();
+			curr.rotate();
+			placeBlock();
+		} 
 	}
 	
 	protected void moveDown() {
@@ -429,7 +466,6 @@ public class Board extends JFrame {
 			gameScore.addScore(); // score 증가
 			updateScore(); 
 			placeBlock();
-			// gameScore.setAddition();
 		}
 		else {
 			// constantBlock에 블럭 모양 반영
@@ -448,6 +484,8 @@ public class Board extends JFrame {
 			eraseCurr();
 			x++;
 			placeBlock();
+		}else {
+			return;
 		}
 	}
 
@@ -456,6 +494,8 @@ public class Board extends JFrame {
 			eraseCurr();
 			x--;
 			placeBlock();
+		} else {
+			return;
 		}
 	}
 
@@ -487,7 +527,7 @@ public class Board extends JFrame {
 				if(board[i][j] == 1) {
 					sb.append("■");
 				} else if(board[i][j] == 2){
-					sb.append("●");
+					sb.append("L");
 				} else {
 					sb.append("   ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
@@ -513,7 +553,7 @@ public class Board extends JFrame {
 				if(previewBoard[i][j] == 1) {
 					sb2.append("■");
 				} else if(board[i][j] == 2){
-					sb2.append("●");
+					sb2.append("L");
 				} else {
 					sb2.append("   ");
 				}
@@ -555,10 +595,7 @@ public class Board extends JFrame {
 				drawBoard();
 				break;
 			case KeyEvent.VK_UP:
-				eraseCurr();
-				curr.rotate();
-				//rotateOK();
-				drawBoard();
+				rotate();
 				break;
 			case KeyEvent.VK_SPACE:
 				hardDrop();
