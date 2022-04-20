@@ -36,15 +36,18 @@ public class Board extends JFrame {
 	public static final int WIDTH = 10;
 	public static final int PREVIEWHEIGHT = 5;
 	public static final int PREVIEWWIDTH = 5;
+	public static final int TARGET_COUNT = 10;
 	public static final char BORDER_CHAR = '○';
-	
+
+	private int deletedLineCount = 0;
+	private boolean isPaused = false;
 	private Difficulty difficulty;
 	private GameScore gameScore; 
-	private boolean isPaused = false;
 	private JTextPane pane;
 	private JTextPane previewPane;
 	private JTextPane scorePane;
 	private JTextPane statusBar;
+	private JTextPane levelPane;
 	private JTextPane difficultyBar;
 	private JTextPane background;
 	private int[][] board;
@@ -60,12 +63,12 @@ public class Board extends JFrame {
 	int x = 3; //Default Position.
 	int y = 0;
 	
-	public int probability;     // I 블럭 관련, easy : 72, normal : 70, hard 68
-	public double initInterval;  // 테트리스 속도 관련  easy : 800, normal : 1000, hard : 1200 
+	protected int probability;
+	protected double initInterval; 
 	
 	public Board() {
 		super("Team 3 Tetris");
-		applyDifficulty();								// 난이도 설정 불러오기 
+		applyDifficulty(); // 난이도 설정 불러오기 
 
 		// Initialize board for the game.
 		gameScore = new GameScore(difficulty);
@@ -132,27 +135,39 @@ public class Board extends JFrame {
 		scorePane.setEditable(false);
 		scorePane.setBorder(border);
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(280, 130, 130, 50);
+		scorePane.setBounds(280, 150, 130, 50);
 		scorePane.setBorder(border2);
 		scorePane.setText("Score : "+ gameScore.getScore());
 		this.getContentPane().add(scorePane);
 
-		//statusBar
-		statusBar = new JTextPane();
-		statusBar.setEditable(false);
-		TitledBorder border3 = BorderFactory.createTitledBorder("Status");
-		statusBar.setBounds(280, 570, 130, 50);
-		statusBar.setBorder(border3);
-		this.getContentPane().add(statusBar);
-
+		//LevelBoard
+		levelPane = new JTextPane();
+		levelPane.setEditable(false);
+		levelPane.setBorder(border);
+		TitledBorder border3 = BorderFactory.createTitledBorder("LEVEL");
+		levelPane.setBounds(280, 410, 130, 50);
+		levelPane.setBorder(border3);
+		levelPane.setText("Level : "+ gameScore.getLevel());
+		this.getContentPane().add(levelPane);
+		
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
-		TitledBorder border4 = BorderFactory.createTitledBorder("difficulty");
-		difficultyBar.setBounds(280, 520, 130, 50);	
+		TitledBorder border4 = BorderFactory.createTitledBorder("DIFFICULTY");
+		difficultyBar.setBounds(280, 480, 130, 50);	
 		difficultyBar.setBorder(border4); 
 		difficultyBar.setText(difficulty.getStringDifficulty());		
 		this.getContentPane().add(difficultyBar);
+
+		//statusBar
+		statusBar = new JTextPane();
+		statusBar.setEditable(false);
+		TitledBorder border5 = BorderFactory.createTitledBorder("STATUS");
+		statusBar.setBounds(280, 550, 130, 50);
+		statusBar.setBorder(border5);
+		statusBar.setText("Playing!");
+		this.getContentPane().add(statusBar);
+
 
 		//Background
 		background = new JTextPane();
@@ -164,8 +179,8 @@ public class Board extends JFrame {
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, 20);
 		StyleConstants.setFontFamily(styleSet, "Dialog");
-		//tyleConstants.setBold(styleSet, true);
-		//StyleConstants.setForeground(styleSet, Color.WHITE);
+		StyleConstants.setBold(styleSet, true);
+		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 	}
 
@@ -183,9 +198,17 @@ public class Board extends JFrame {
 	}
 	
 	private void applyDifficulty() {
-		difficulty = new Difficulty(0);			// 처음 설정창과 연결하기 () 부분 난이도 설정 
+		difficulty = new Difficulty(2);			// 처음 설정창과 연결하기 () 부분 난이도 설정 
 		initInterval = difficulty.getSpeed();
 		probability = difficulty.getProbability();
+	}
+
+	public void levelUp() {
+		gameScore.levelUp();
+		initInterval = difficulty.getSpeed();
+		timer.setDelay((int)initInterval);
+		levelPane.setText("Level : " + gameScore.getLevel());
+		statusBar.setText("LEVEL UP!!");
 	}
 	
 	private void pause() {
@@ -195,7 +218,7 @@ public class Board extends JFrame {
         if (isPaused) {
         	status = "Pause!";
         } else {
-        	status = "Resume!";
+        	status = "Playing!";
         }
         drawBoard();
         statusBar.setText(status);
@@ -240,7 +263,7 @@ public class Board extends JFrame {
 			int offset = rows * (WIDTH+3) + x + 1;
 			doc.setCharacterAttributes(offset, curr.width(), styles, true);
 			for(int i=0; i<curr.width(); ++i) { // 블럭 배열을 board 배열에 대입
-				if(inactiveBlock[y+j][x+i] == 1) {
+				if(inactiveBlock[y+j][x+i] >= 1) {
 					continue;
 				}
 				board[y+j][x+i] = curr.getShape(i, j);
@@ -263,8 +286,7 @@ public class Board extends JFrame {
 	}
 	
 	public void updateScore(){
-        String total = Integer.toString(gameScore.getScore());
-        scorePane.setText(total);
+        scorePane.setText("Score : "+ gameScore.getScore());
     }
 	
 	private void eraseCurr() { // Erase current block.
@@ -286,14 +308,16 @@ public class Board extends JFrame {
 	
 	// 줄 삭제
 	private void lineClear() {
-		// int combo = 0;
+		int combo = 0; // 붙어서 삭제 되는 line 수
 		for(int j = HEIGHT - 1; j >0; --j) {
+			if(!checkLineFull(j)) {
+				continue;
+			}
+			
 			while(checkLineFull(j)) {
-
-			//	combo++; // 삭제되는 줄의 수
+				combo++; // 붙어서 삭제되는 줄의 수
 				
 				// inactiveBlock[][] 한 칸씩 내려오기
-								
 				for(int rows = j - 1; rows >= 0; --rows) {
 					for(int cols = 0; cols < WIDTH; ++cols) {
 						inactiveBlock[rows+1][cols] = inactiveBlock[rows][cols];
@@ -301,20 +325,26 @@ public class Board extends JFrame {
 				}
 				inactiveBlock[0] = new int[WIDTH];
 				
+				// board[][] 한 칸씩 내려오기
 				for(int rows = j - 1; rows >= 0; --rows) {
 					for(int cols = 0; cols < WIDTH; ++cols) {
 						board[rows+1][cols] = board[rows][cols];
 					}
 				}
 				board[0] = new int[WIDTH];
-				
-				gameScore.lineClear();
-				updateScore();
 			}
+			gameScore.lineClear(combo);
+
+			while(combo > 0) {
+				deletedLineCount++;
+				combo--;
+				if(deletedLineCount % TARGET_COUNT == 0) {
+					levelUp();
+				}
+			}
+			updateScore();
 		}
-			
 		drawBoard();
-		
 	}
 	
 	private boolean checkLineFull(int lineNum) {
@@ -326,8 +356,6 @@ public class Board extends JFrame {
 		return true;
 	}
 	
-	//4.18 - 김세한 - 블럭이동이 가능한지 검사하는 함수
-	//4.19 - 고지완 - checkBottom으로 수정 및 오류 개선
 	protected boolean checkBottom() {
 		int w = curr.width();
 		int h = curr.height();
@@ -468,7 +496,7 @@ public class Board extends JFrame {
 			placeBlock();
 		}
 		else {
-			// constantBlock에 블럭 모양 반영
+			// inactiveBlock[][]에 블럭 모양 반영
 			inactivateBlock();
 			lineClear();
 			curr = next;
@@ -498,7 +526,7 @@ public class Board extends JFrame {
 			return;
 		}
 	}
-
+	
 	public void gameOverCheck() {
 		for(int k = 0; k < WIDTH; ++k) {
 			if(inactiveBlock[0][k] == 1) {

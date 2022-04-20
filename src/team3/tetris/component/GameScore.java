@@ -5,12 +5,14 @@ import team3.tetris.control.Difficulty;
 public class GameScore {
 	
 	Difficulty difficulty;
+	private int level;
     private int score;
     private int addition; // 더해지는 점수
 
     public GameScore(Difficulty difficulty) 
     {
     	this.difficulty = difficulty;
+    	this.level = 1;
         this.score = 0; 
         this.addition = 10;
     }
@@ -18,6 +20,10 @@ public class GameScore {
     // 점수 반환
 	public int getScore() {
 		return score;
+	}
+	
+	public int getLevel() {
+		return level;
 	}
 	
 	// addition 값 조정 by speed
@@ -30,15 +36,17 @@ public class GameScore {
         score += addition;
     }
     
-    // 줄 삭제 시 점수 계산
-    public void lineClear() {
-    	score += 100;
+    // 한 번에 여러 줄 삭제
+    public void lineClear(int lineCount) {
+    	score += 100*lineCount*lineCount;
     }
     
-//    public void multiLine(int line_num) {
-//    	score += 10*line_num*line_num;
-//    } // 콤보 점수 - 한 번에 여러 해을 맞췄을 때
-    
+    // 레벨 업
+    public void levelUp() {
+    	level++;
+    	difficulty.setSpeed();
+    	setAddition();
+    }
     
 
 }

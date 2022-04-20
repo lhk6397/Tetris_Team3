@@ -13,7 +13,7 @@ public class ItemBoard extends Board {
 
     @Override
     protected Block getRandomBlock(int num, int blocks) {
-        count ++;
+        count++;
         if (count % 10 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*11);
             int number = rnd.nextInt(2);

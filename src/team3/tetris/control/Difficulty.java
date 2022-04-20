@@ -29,13 +29,13 @@ public class Difficulty {
 	public static void setSpeed(){
 		switch(difficulty){
 		case 0:
-			speed = Interval * 1.2;
+			speed *= 0.8;
 			break;
 		case 1:
-			speed = Interval * 1.4;
+			speed *= 0.6;
 			break;
 		case 2:
-			speed = Interval * 1.6;	
+			speed *= 0.4;	
 			break;
 		}
 	}
