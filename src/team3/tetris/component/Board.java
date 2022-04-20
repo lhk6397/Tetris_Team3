@@ -38,6 +38,7 @@ public class Board extends JFrame {
 	public static final int PREVIEWWIDTH = 5;
 	public static final char BORDER_CHAR = '▧';
 	
+	private Difficulty difficulty;
 	private GameScore gameScore; 
 	private boolean isPaused = false;
 	private JTextPane pane;
@@ -59,16 +60,15 @@ public class Board extends JFrame {
 	int x = 3; //Default Position.
 	int y = 0;
 	
-	public int probability = 70;     // I 블럭 관련, easy : 72, normal : 70, hard 68
-	public int initInterval = 1000;  // 테트리스 속도 관련  easy : 800, normal : 1000, hard : 1200 
+	public int probability;     // I 블럭 관련, easy : 72, normal : 70, hard 68
+	public double initInterval;  // 테트리스 속도 관련  easy : 800, normal : 1000, hard : 1200 
 	
 	public Board() {
 		super("Team 3 Tetris");
-		//Set timer for block drops.
 		applyDifficulty();								// 난이도 설정 불러오기 
 
 		// Initialize board for the game.
-		gameScore = new GameScore();
+		gameScore = new GameScore(difficulty);
 		board = new int[HEIGHT][WIDTH];
 		inactiveBlock = new int[HEIGHT][WIDTH];
 		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
@@ -82,7 +82,7 @@ public class Board extends JFrame {
 
 	//timer 실행 및 placeBlock 실행
 	protected void run() {
-		timer = new Timer(initInterval, new ActionListener() { // initInterval 마다 actionPerformed
+		timer = new Timer((int) (initInterval), new ActionListener() { // initInterval 마다 actionPerformed
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(!isPaused) {
@@ -157,7 +157,7 @@ public class Board extends JFrame {
 		difficultyBar.setBounds(280, 520, 130, 50);	
 		// difficultyBar.setBounds(250, 520, 130, 50);
 		difficultyBar.setBorder(border4); 
-		difficultyBar.setText(Difficulty.getDifficulty());		
+		difficultyBar.setText(difficulty.getStringDifficulty());		
 		this.getContentPane().add(difficultyBar);
 
 		//Document default style.
@@ -183,11 +183,9 @@ public class Board extends JFrame {
 	}
 	
 	private void applyDifficulty() {
-		Difficulty.setDifficulty(2);				// 처음 설정창과 연결하기 () 부분 난이도 설정 
-		Difficulty.setSpeed();
-		Difficulty.setProbability();
-		initInterval = Difficulty.getSpeed();
-		probability = Difficulty.getProbability();
+		difficulty = new Difficulty(2);			// 처음 설정창과 연결하기 () 부분 난이도 설정 
+		initInterval = difficulty.getSpeed();
+		probability = difficulty.getProbability();
 	}
 	
 	private void pause() {
@@ -242,7 +240,7 @@ public class Board extends JFrame {
 			int offset = rows * (WIDTH+3) + x + 1;
 			doc.setCharacterAttributes(offset, curr.width(), styles, true);
 			for(int i=0; i<curr.width(); ++i) { // 블럭 배열을 board 배열에 대입
-				if(board[y+j][x+i] == 1) {
+				if(inactiveBlock[y+j][x+i] == 1) {
 					continue;
 				}
 				board[y+j][x+i] = curr.getShape(i, j);
@@ -256,7 +254,7 @@ public class Board extends JFrame {
 	private void inactivateBlock() {
 		for(int j = 0; j < curr.height(); ++j) {
 			for(int i = 0; i < curr.width(); ++i) {
-				if(inactiveBlock[y+j][x+i] == 1) {
+				if(inactiveBlock[y+j][x+i] >= 1) {
 					continue;
 				}
 				inactiveBlock[y+j][x+i] = curr.getShape(i, j);
@@ -272,6 +270,7 @@ public class Board extends JFrame {
 	private void eraseCurr() { // Erase current block.
 		for(int i=x; i<x+curr.width(); i++) {
 			for(int j=y; j<y+curr.height(); j++) {
+				if(inactiveBlock[j][i] == 1) continue;
 				board[j][i] = 0;
 			}
 		}  		 
@@ -284,7 +283,49 @@ public class Board extends JFrame {
 			}
 		}
 	}
+	
+	// 줄 삭제
+	private void lineClear() {
+		int combo = 0;
+		for(int j = HEIGHT - 1; j >0; --j) {
+			while(checkLineFull(j)) {
 
+				combo++; // 삭제되는 줄의 수
+				
+				// inactiveBlock[][] 한 칸씩 내려오기
+								
+				for(int rows = j - 1; rows >= 0; --rows) {
+					for(int cols = 0; cols < WIDTH; ++cols) {
+						inactiveBlock[rows+1][cols] = inactiveBlock[rows][cols];
+					}
+				}
+				inactiveBlock[0] = new int[WIDTH];
+				
+				for(int rows = j - 1; rows >= 0; --rows) {
+					for(int cols = 0; cols < WIDTH; ++cols) {
+						board[rows+1][cols] = board[rows][cols];
+					}
+				}
+				board[0] = new int[WIDTH];
+				
+				gameScore.lineClear();
+				updateScore();
+			}
+		}
+			
+		drawBoard();
+		
+	}
+	
+	private boolean checkLineFull(int lineNum) {
+		for(int i = 0; i < WIDTH; ++i) {
+			if(inactiveBlock[lineNum][i] <= 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	//4.18 - 김세한 - 블럭이동이 가능한지 검사하는 함수
 	//4.19 - 고지완 - checkBottom으로 수정 및 오류 개선
 	protected boolean checkBottom() {
@@ -350,7 +391,7 @@ public class Board extends JFrame {
 		return true;
 	}
 	
-	//git issues 해결중
+	// git issues 해결중
 	public void rotateOK() {
 		curr.rotate();
 		if (x + curr.width() > WIDTH) {
@@ -358,17 +399,42 @@ public class Board extends JFrame {
 		}
 	}
 
+	private void hardDrop() {
+		// inactiveBlock == 1일 때까지 y를 1씩 증가해가면서 
+		// inactiveBlock[][x]에 현재 블럭 모양 대입
+		// 내려간 line 개수만큼 addScore();
+		int lineCount = 0;
+		eraseCurr();
+		for(; y < HEIGHT; ++y) {
+			lineCount++;
+			if(!checkBottom()) {
+				placeBlock();
+				inactivateBlock();
+				while(lineCount > 0) {
+					gameScore.addScore();
+					updateScore();
+					lineCount--;
+				}
+				return;
+			}
+		}
+		
+		
+	}
+	
 	protected void moveDown() {
 		if(checkBottom()) {
 			eraseCurr();
 			y++;
-			gameScore.increaseScore(); // score 증가
+			gameScore.addScore(); // score 증가
 			updateScore(); 
 			placeBlock();
+			// gameScore.setAddition();
 		}
 		else {
 			// constantBlock에 블럭 모양 반영
 			inactivateBlock();
+			lineClear();
 			curr = next;
 			next = getRandomBlock(1,probability);
 			x = 3;
@@ -394,8 +460,8 @@ public class Board extends JFrame {
 	}
 
 	public void gameOverCheck() {
-		for(int k = 0; k<WIDTH; ++k) {
-			if(board[0][k] == 1) {
+		for(int k = 0; k < WIDTH; ++k) {
+			if(inactiveBlock[0][k] == 1) {
 				timer.stop();
 				Scoreboard sb;
 				try {
@@ -420,6 +486,8 @@ public class Board extends JFrame {
 			for(int j=0; j < board[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(board[i][j] == 1) {
 					sb.append("■");
+				} else if(board[i][j] == 2){
+					sb.append("●");
 				} else {
 					sb.append("   ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
@@ -444,6 +512,8 @@ public class Board extends JFrame {
 			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(previewBoard[i][j] == 1) {
 					sb2.append("■");
+				} else if(board[i][j] == 2){
+					sb2.append("●");
 				} else {
 					sb2.append("   ");
 				}
@@ -491,7 +561,7 @@ public class Board extends JFrame {
 				drawBoard();
 				break;
 			case KeyEvent.VK_SPACE:
-				//harDrop();
+				hardDrop();
 				break;
 			case KeyEvent.VK_P:
 				pause();

@@ -4,22 +4,39 @@ public class Difficulty {
 	
 	private static int Interval = 1000;
 	
-	private static int difficulty = 2;  // 0 -> easy , 1 -> normal, 2-> hard
-	private static int speed = Interval;
-	private static int probability = 70;
+	private static int difficulty;  // 0 -> easy , 1 -> normal, 2-> hard
+	private static double speed;
+	private static int probability;
 
+	public Difficulty() {
+		this.difficulty = 1;
+		this.speed = Interval;
+		this.probability = 70;
+	}
+	
+	public Difficulty(int difficultyType) {
+		this.difficulty = difficultyType;
+		this.speed = Interval;
+		setProbability();
+	}
+	
 	public static void setDifficulty(int num){		
 		difficulty = num;
 	}
 
+	
+	// 일정 수 줄 삭제 -> speed 증가(난이도에 따라) = setSpeed()
 	public static void setSpeed(){
 		switch(difficulty){
 		case 0:
-			speed = 800;
+			speed = Interval * 1.2;
+			break;
 		case 1:
-			speed = Interval;
+			speed = Interval * 1.4;
+			break;
 		case 2:
-			speed = 1200;	
+			speed = Interval * 1.6;	
+			break;
 		}
 	}
 
@@ -27,15 +44,22 @@ public class Difficulty {
 		switch(difficulty){
 		case 0:
 			probability = 72;
+			break;
 		case 1:
 			probability = 70;
+			break;
 		case 2:
 			probability = 68;	
+			break;
 		}
 
 	}
-
-	public static String getDifficulty() {
+	
+	public static int getDifficulty() {
+		return difficulty;
+	}
+	
+	public static String getStringDifficulty() {
 		switch(difficulty){
 		case 0:
 			return "Easy";
@@ -47,7 +71,7 @@ public class Difficulty {
 		return "Normal";
 	}
 
-	public static int getSpeed(){
+	public static double getSpeed(){
 		return speed;
 	}
 

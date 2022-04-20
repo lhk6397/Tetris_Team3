@@ -5,42 +5,40 @@ import team3.tetris.control.Difficulty;
 public class GameScore {
 	
 	Difficulty difficulty;
-    private int score; 
-    private int speed; // 난이도에 따른 속도
-    private int addition; // 추가 점수
+    private int score;
+    private int addition; // 더해지는 점수
 
-    public GameScore() 
+    public GameScore(Difficulty difficulty) 
     {
-    	difficulty = new Difficulty();
+    	this.difficulty = difficulty;
         this.score = 0; 
-        this.addition = 5;
-        this.speed = difficulty.getSpeed();
+        this.addition = 10;
     }
 
-//    public GameScore(int score, int addition) { // 난이도
-//        this.score = score;
-//        this.addition = addition;
-//        this.speed = 0;
-//    }
-
-    public void increaseScore(){
+    // 점수 반환
+	public int getScore() {
+		return score;
+	}
+	
+	// addition 값 조정 by speed
+	public void setAddition() {
+		addition += difficulty.getSpeed() / 100;
+	}
+	
+	// 점수 증가
+    public void addScore(){
         score += addition;
-    } // 게임이 진행될 때 자동으로 추가되는 점수
+    }
     
-    public void setPlus(int speed){ 
-    	addition += speed; 
-    } // 속도가 올라감에 따라 plus를 증가하는 함수
+    // 줄 삭제 시 점수 계산
+    public void lineClear() {
+    	score += 100;
+    }
     
-    public void line() {
-    	score += 10;
-    } // 한 행을 맞췄을 때
+//    public void multiLine(int line_num) {
+//    	score += 10*line_num*line_num;
+//    } // 콤보 점수 - 한 번에 여러 해을 맞췄을 때
     
-    public void multiLine(int line_num) {
-    	score += 10*line_num*line_num;
-    } // 콤보 점수 - 한 번에 여러 해을 맞췄을 때
     
-    public int getScore() {
-        return score;
-    } // 최종 점수 반환
 
 }
