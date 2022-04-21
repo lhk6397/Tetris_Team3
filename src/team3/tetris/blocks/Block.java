@@ -14,7 +14,9 @@ public abstract class Block {
 		};
 		color = Color.YELLOW;
 	}
-	public void setShape(int[][] shape) { this.shape = shape; }
+	public void setShape(int[][] shape) { 
+		this.shape = shape;
+	}
 	
 	public int[][] getBlockShape(){
 		return shape;

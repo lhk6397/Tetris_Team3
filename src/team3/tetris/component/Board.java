@@ -39,10 +39,10 @@ public class Board extends JFrame {
 	public static final int TARGET_COUNT = 10;
 	public static final char BORDER_CHAR = '○';
 
-	private int deletedLineCount = 0;
+	protected int deletedLineCount = 0;
 	private boolean isPaused = false;
 	private Difficulty difficulty;
-	private GameScore gameScore; 
+	protected GameScore gameScore; 
 	private JTextPane pane;
 	private JTextPane previewPane;
 	private JTextPane scorePane;
@@ -50,8 +50,8 @@ public class Board extends JFrame {
 	private JTextPane levelPane;
 	private JTextPane difficultyBar;
 	private JTextPane background;
-	private int[][] board;
-	private int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
+	protected int[][] board;
+	protected int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
 	private int[][] previewBoard;
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
@@ -307,7 +307,7 @@ public class Board extends JFrame {
 	}
 	
 	// 줄 삭제
-	private void lineClear() {
+	protected void lineClear() {
 		int combo = 0; // 붙어서 삭제 되는 line 수
 		for(int j = HEIGHT - 1; j >0; --j) {
 			if(!checkLineFull(j)) {
@@ -347,7 +347,7 @@ public class Board extends JFrame {
 		drawBoard();
 	}
 	
-	private boolean checkLineFull(int lineNum) {
+	protected boolean checkLineFull(int lineNum) {
 		for(int i = 0; i < WIDTH; ++i) {
 			if(inactiveBlock[lineNum][i] <= 0) {
 				return false;
@@ -556,6 +556,8 @@ public class Board extends JFrame {
 					sb.append("■");
 				} else if(board[i][j] == 2){
 					sb.append("L");
+				} else if(board[i][j] == 3) {
+					sb.append("C");
 				} else {
 					sb.append("   ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
@@ -580,8 +582,10 @@ public class Board extends JFrame {
 			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(previewBoard[i][j] == 1) {
 					sb2.append("■");
-				} else if(board[i][j] == 2){
+				} else if(previewBoard[i][j] == 2){
 					sb2.append("L");
+				} else if(previewBoard[i][j] == 3) {
+					sb2.append("C");
 				} else {
 					sb2.append("   ");
 				}
@@ -598,6 +602,7 @@ public class Board extends JFrame {
 	public void reset() {
 		this.board = new int[HEIGHT][WIDTH];
 		this.previewBoard = new int [PREVIEWHEIGHT][PREVIEWWIDTH];
+		this.inactiveBlock = new int[HEIGHT][WIDTH];
 	}
 
 	public class PlayerKeyListener implements KeyListener { // key 입력
