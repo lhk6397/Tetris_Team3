@@ -77,7 +77,6 @@ public class Board extends JFrame {
 		super("Team 3 Tetris");
 		this.isNormal = true;
 		this.isPaused = false;
-		System.out.println(isNormal);
 		applyDifficulty(); // 난이도 설정 불러오기 
 		applyGameSize();
 		// Initialize board for the game.

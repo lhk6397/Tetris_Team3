@@ -36,6 +36,11 @@ public class Record {
     //새 레코드가 들어왔을 때 스코어보드에 기록하는 함수
     public int setScoreBoard(RecordDTO new_record) {
         int new_recordScore = new_record.getScore();
+        if(scoreBoard.size() == 0) {
+        	scoreBoard.add(0, new_record);
+        	changedRank = 0;
+        	return changedRank;
+        }
         for (int i = 0; i < scoreBoard.size(); i++) {
             if (scoreBoard.get(i).getScore() <= new_recordScore) {
                 scoreBoard.add(i, new_record);

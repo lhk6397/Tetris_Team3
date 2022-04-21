@@ -33,10 +33,10 @@ public class GameSize {
 			gameSize = 10;
 			break;
 		case 1:
-			gameSize = 15;
+			gameSize = 13;
 			break;
 		case 2:
-			gameSize = 20;
+			gameSize = 16;
 			break;
 		}
 	}

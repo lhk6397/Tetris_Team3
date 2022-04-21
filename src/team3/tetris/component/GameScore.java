@@ -4,6 +4,8 @@ import team3.tetris.control.Difficulty;
 
 public class GameScore {
 	
+	private final int unitScore = 10;
+	
 	Difficulty difficulty;
 	private int level;
     private int score;
@@ -14,7 +16,7 @@ public class GameScore {
     	this.difficulty = difficulty;
     	this.level = 1;
         this.score = 0; 
-        this.addition = 10;
+        this.addition = unitScore;
     }
 
     // 점수 반환
