@@ -1,23 +1,22 @@
 package team3.tetris.component;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
+import javax.security.auth.PrivateCredentialPermission;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
 
 import team3.tetris.blocks.Block;
 import team3.tetris.blocks.IBlock;
@@ -39,7 +38,7 @@ public class Board extends JFrame {
 	public static final int PREVIEWHEIGHT = 4;
 	public static final int PREVIEWWIDTH = 4;
 	public static final int TARGET_COUNT = 10;
-	public static final char BORDER_CHAR = '○';
+	public static final String BORDER_CHAR = "○";
 
 	public Difficulty difficulty;
 	private GameSize settingGameSize;
@@ -57,6 +56,8 @@ public class Board extends JFrame {
 	protected JTextPane pane;
 	protected SimpleAttributeSet styleSet;
 	protected Block curr;
+	protected Block next;
+
 	protected JTextPane previewPane;
 	protected JTextPane scorePane;
 	protected JTextPane statusBar;
@@ -67,7 +68,7 @@ public class Board extends JFrame {
 	protected int[][] previewBoard;
 	protected KeyListener playerKeyListener;
 	protected Timer timer;
-	protected Block next;
+
 	protected String status;
 	
 	int x = 3; //Default Position.
@@ -77,7 +78,7 @@ public class Board extends JFrame {
 		super("Team 3 Tetris");
 		this.isNormal = true;
 		this.isPaused = false;
-		applyDifficulty(); // 난이도 설정 불러오기 
+		applyDifficulty(); // 난이도 설정 불러오기
 		applyGameSize();
 		// Initialize board for the game.
 		gameScore = new GameScore(difficulty);
@@ -104,7 +105,7 @@ public class Board extends JFrame {
 		setFocusable(true);
 		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
 		setDisplayAndLayout();
-		
+
 		// Create block and draw.
 		curr = getRandomBlock(11, probability);
 		next = getRandomBlock(1, probability);
@@ -119,7 +120,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 
 		//Board display setting.
-		setSize(gameSize*38,gameSize*(53-gameSizeType));
+		setSize(gameSize*46,gameSize*(77-gameSizeType));
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
@@ -129,20 +130,18 @@ public class Board extends JFrame {
 
 		//MainBoard
 		pane = new JTextPane();
-		pane.setEditable(false);
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
-		pane.setBounds(gameSize*0, gameSize*0, gameSize*20, gameSize*49);
+		pane.setBounds(gameSize*0, gameSize*0, gameSize*20, gameSize*66);
 		this.getContentPane().add(pane);
-		
+													//20
 		//PreviewBoard
 		previewPane = new JTextPane();
-		previewPane.setEditable(false);
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border);
-		previewPane.setBounds(gameSize*22, gameSize*0, gameSize*13, gameSize*13);  
-		this.getContentPane().add(previewPane); 
-		
+		previewPane.setBounds(gameSize*22, gameSize*0, gameSize*13, gameSize*13);
+		this.getContentPane().add(previewPane);
+								//29, 31
 		//ScoreBoard
 		scorePane = new JTextPane();
 		scorePane.setEditable(false);
@@ -173,10 +172,9 @@ public class Board extends JFrame {
 		gameModeBar.setBounds(gameSize*22, gameSize*33,gameSize*13, gameSize*5);
 		gameModeBar.setBorder(border4);
 		gameModeBar.setFont(font);
-		String txt = isNormal ? "Normal Mode" : "Item Mode";
-		gameModeBar.setText(txt);
+		gameModeBar.setText("GameMode");
 		this.getContentPane().add(gameModeBar);
-		
+
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
@@ -186,6 +184,8 @@ public class Board extends JFrame {
 		difficultyBar.setFont(font);
 		difficultyBar.setText(difficulty.getStringDifficulty());
 		this.getContentPane().add(difficultyBar);
+
+
 
 		//statusBar
 		statusBar = new JTextPane();
@@ -206,7 +206,7 @@ public class Board extends JFrame {
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, gameSize*2);
 		StyleConstants.setFontFamily(styleSet, "Britannic Bold");
-		
+
 		// Britannic Bold
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
@@ -215,7 +215,7 @@ public class Board extends JFrame {
 
 	protected Block getRandomBlock(int num, int probability) {
 		Random rnd = new Random(System.currentTimeMillis()*num); // Generate Random Number. // num : block과 previewBlock 구분을 위해 소수 곱하기
-		int block = rnd.nextInt(probability);  
+		int block = rnd.nextInt(probability);
 
 		if(block < 10) return new OBlock();
 		else if (block <20) return new JBlock();
@@ -231,12 +231,12 @@ public class Board extends JFrame {
 		initInterval = difficulty.getSpeed();
 		probability = difficulty.getProbability();
 	}
-	
+
 	private void applyGameSize() {
-		settingGameSize = new GameSize(1);		// 설정창과 연결하기		
-		gameSize = settingGameSize.getGameSize();	
-		gameSizeType = settingGameSize.getGameSizeType(); 
-		frameSize = settingGameSize.getFrameSize();	
+		settingGameSize = new GameSize(0);		// 설정창과 연결하기
+		gameSize = settingGameSize.getGameSize();
+		gameSizeType = settingGameSize.getGameSizeType();
+		frameSize = settingGameSize.getFrameSize();
 	}
 
 	public void levelUp() {
@@ -250,7 +250,7 @@ public class Board extends JFrame {
 	protected void pause() {
 		/*
 		 * 1. P와 ESC를 제외한 나머지의 키 입력을 제한
-		 * 
+		 *
 		 */
         isPaused = !isPaused;
 
@@ -294,7 +294,7 @@ public class Board extends JFrame {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 //		StyleConstants.setForeground(styles, curr.getColor());
-		
+
 		for(int j=0; j<curr.height(); ++j) {
 			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
 			int offset = rows * (WIDTH+3) + x + 1;
@@ -542,7 +542,12 @@ public class Board extends JFrame {
 			// inactiveBlock[][]에 블럭 모양 반영
 			inactivateBlock();
 			lineClearCheck();
-			spawnBlock();
+			curr = next;
+			next = getRandomBlock(1,probability);
+			x = 3;
+			y = 0;
+			placeBlock();
+			gameOverCheck();
 		}
 	} 
 	
@@ -565,7 +570,6 @@ public class Board extends JFrame {
 			return;
 		}
 	}
-	
 	public void spawnBlock() {
 		curr = next;
 		next = getRandomBlock(1,probability);
@@ -574,10 +578,11 @@ public class Board extends JFrame {
 		gameOverCheck();
 		placeBlock();
 	}
-	
+
 	public void gameOverCheck() {
+		PrintBoard(inactiveBlock);
 		for(int k = 0; k < WIDTH; ++k) {
-			if(inactiveBlock[0][k] == 1) {
+			if(inactiveBlock[0][k] >= 1) {
 				timer.stop();
 				Scoreboard sb;
 				try {
@@ -591,58 +596,101 @@ public class Board extends JFrame {
 			}
 		}
 	}
-	
+
 	public void drawBoard() {
-		StyleConstants.setForeground(styleSet, curr.getColor());
-		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
-		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 윗쪽 벽
-		sb.append("\n");
-		for(int i=0; i < board.length; i++) {
-			sb.append(BORDER_CHAR); // 왼쪽 벽
-			for(int j=0; j < board[i].length; j++) { // 블럭에 해당되는 부분 draw
-				if(board[i][j] == 1) {
-					sb.append("■");
-				} else if(board[i][j] == 2){
-					sb.append("L");
-				} else {
-					sb.append("  ");
-				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
-			}
-			sb.append(BORDER_CHAR); // 오른쪽 벽
-			sb.append("\n");
-		}
-		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 아랫쪽 벽
-		pane.setText(sb.toString());
-		StyledDocument doc = pane.getStyledDocument();
-		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
-		pane.setStyledDocument(doc);
-		drawPreviewBoard();
-	}
-	
-	public void drawPreviewBoard() {
-		StyleConstants.setForeground(styleSet, next.getColor());
-		StringBuilder sb2 = new StringBuilder(); 
-		
-		sb2.append("\n");
-		for(int i=0; i < previewBoard.length; i++) {
-			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
-				if(previewBoard[i][j] == 1) {
-					sb2.append("■");
-				} else if(board[i][j] == 2){
-					sb2.append("L");
-				} else {
-					sb2.append("  ");
+		pane.setText("");
+		for(int t=0; t<WIDTH+2; t++) appendToPane(pane,BORDER_CHAR,Color.GRAY);
+		appendToPane(pane,"\n",Color.BLACK);
+		for(int i = 0; i<board.length; i++) {
+			appendToPane(pane,BORDER_CHAR,Color.GRAY);
+			for(int j=0;j<board[i].length;j++) {
+				int blockID = board[i][j];
+				if (blockID == 0) {
+					appendToPane(pane, "  ", Color.BLACK);
+				} else if (blockID <= 10) {
+					appendToPane(pane,"■", blockByColor(board[i][j]));
+				} else if (blockID == 11) {
+					appendToPane(pane,"L", blockByColor(board[i][j]));
+				} else if (blockID == 12){
+					appendToPane(pane, "☆", Color.WHITE);
+				} else if (blockID == 13){
+					appendToPane(pane, "F", Color.WHITE);
+				} else if (blockID == 14){
+					appendToPane(pane, "B", Color.WHITE);
 				}
 			}
-			sb2.append("\n");
+			appendToPane(pane,BORDER_CHAR,Color.GRAY);
+			appendToPane(pane,"\n", Color.BLACK);
 		}
-
-		previewPane.setText(sb2.toString());
-		StyledDocument doc = previewPane.getStyledDocument();							
-		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
-		previewPane.setStyledDocument(doc);
+		for(int t=0; t<WIDTH+2; t++) appendToPane(pane,BORDER_CHAR,Color.GRAY);
+		appendToPane(pane,"\n",Color.BLACK);
+		drawPreviewBoard();
 	}
-	
+
+	public void drawPreviewBoard() {
+		PrintBoard(previewBoard);
+		previewPane.setText("");
+		appendToPane(previewPane, "\n     ", Color.BLACK);
+		for(int i=0; i < previewBoard.length; i++) {
+			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
+				int blockID = previewBoard[i][j];
+				if (blockID == 0) {
+					appendToPane(previewPane, "  ", Color.BLACK);
+				} else if (blockID <= 10) {
+					appendToPane(previewPane,"■", blockByColor(previewBoard[i][j]));
+				} else if (blockID == 11) {
+					appendToPane(previewPane,"L", Color.WHITE);
+				} else if (blockID == 12){
+					appendToPane(previewPane, "☆", Color.WHITE);
+				} else if (blockID == 13){
+					appendToPane(previewPane, "F", Color.WHITE);
+				} else if (blockID == 14){
+					appendToPane(previewPane, "B", Color.WHITE);
+				}
+			}
+			appendToPane(previewPane,"\n     ",Color.BLACK);
+		}
+	}
+
+	private Color blockByColor(int blockID) {
+		switch (blockID) {
+			case 1:
+				return Color.CYAN;
+			case 2:
+				return Color.BLUE;
+			case 3:
+				return Color.ORANGE;
+			case 4:
+				return Color.YELLOW;
+			case 5:
+				return Color.GREEN;
+			case 6:
+				return Color.MAGENTA;
+			case 7:
+				return Color.RED;
+			case 10:
+				return Color.WHITE;
+		}
+	return Color.BLACK;}
+
+
+	private void appendToPane(JTextPane tp, String msg, Color c)
+	{
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+
+		//Pane Style 지정 -->
+		aset = sc.addAttribute(aset, StyleConstants.FontFamily, "MONOSPACE");
+		aset = sc.addAttribute(aset, StyleConstants.FontSize, 20);
+		aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+		aset = sc.addAttribute(aset, StyleConstants.LineSpacing, 0.5f);
+
+		int len = tp.getDocument().getLength();
+		tp.setCaretPosition(len);
+		tp.setCharacterAttributes(aset, false);
+		tp.replaceSelection(msg);
+	}
+
 	public void reset() {
 		this.board = new int[HEIGHT][WIDTH];
 		this.previewBoard = new int [PREVIEWHEIGHT][PREVIEWWIDTH];
@@ -689,6 +737,14 @@ public class Board extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent e) {}
 
+	}
+
+
+	void PrintBoard (int [][] arr) {
+		for (int i=0; i< arr.length; i ++){
+			System.out.println("y: " + i + "|" + Arrays.toString(arr[i]));
+		}
+		System.out.println("-------------------------------------");
 	}
 }
 

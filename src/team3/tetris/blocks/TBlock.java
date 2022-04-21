@@ -6,9 +6,10 @@ public class TBlock extends Block {
 	private static final int ID = 6;
 	public TBlock() {
 		shape = new int[][] { 
-			{0, 1, 0},
-			{1, 1, 1}
+			{0, 6, 0},
+			{6, 6, 6}
 		};
 		color = Color.MAGENTA;
+		id = 6;
 	}
 }
