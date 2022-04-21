@@ -14,13 +14,14 @@ public class ItemBoard extends Board {
     
     public ItemBoard() {
         super();
+        super.isNormal = false;
     }
 
 
     @Override
     protected Block getRandomBlock(int num, int blocks) {
         count++;
-        if (count % 5 == 0) {
+        if (count % 10 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*11);
             int number = rnd.nextInt(3);
             switch (number) {
@@ -61,14 +62,17 @@ public class ItemBoard extends Board {
 	}
     
     public void fieldClear() {
-    	// int elementCount = 0;
+    	int elementCount = 0;
     	for(int j = HEIGHT -1; j > 0; --j) {
     		for(int i = 0; i < WIDTH; ++i) {
     			if(inactiveBlock[j][i] >= 1) {
-    				// elementCount++;
-    		    	gameScore.addScore();
+    				elementCount++;
     			}
     		}
+    	}
+    	
+    	for(int i = 0 ; i < elementCount / WIDTH; ++i) {
+    		gameScore.addScore();
     	}
     	isFieldClear = false;
     	updateScore();
@@ -243,6 +247,4 @@ public class ItemBoard extends Board {
         block.setShape(FCblock);
         return block;
     }
-    
-    
 }

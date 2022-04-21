@@ -28,6 +28,7 @@ import team3.tetris.blocks.SBlock;
 import team3.tetris.blocks.TBlock;
 import team3.tetris.blocks.ZBlock;
 import team3.tetris.control.Difficulty;
+import team3.tetris.control.GameSize;
 
 public class Board extends JFrame {
 
@@ -35,24 +36,25 @@ public class Board extends JFrame {
 	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
-	public static final int PREVIEWHEIGHT = 5;
-	public static final int PREVIEWWIDTH = 5;
+	public static final int PREVIEWHEIGHT = 4;
+	public static final int PREVIEWWIDTH = 4;
 	public static final int TARGET_COUNT = 10;
 	public static final char BORDER_CHAR = '○';
 
 	public Difficulty difficulty;
-	protected GameScore gameScore;
+	private GameSize settingGameSize;
+	protected GameScore gameScore; 
 	protected int deletedLineCount = 0;
 	protected int probability;
-	protected int gameSize;
-	protected int gameSizeType;
-	protected int frameSize;
+	protected int gameSize;					
+	protected int gameSizeType; 				
+	protected int frameSize;	
 	protected int[][] board;
 	protected int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
-	protected double initInterval;
+	protected double initInterval; 
 	protected boolean isNormal;
 	protected boolean isPaused;
-
+	
 	private JTextPane pane;
 	private JTextPane previewPane;
 	private JTextPane scorePane;
@@ -71,22 +73,19 @@ public class Board extends JFrame {
 	
 	int x = 3; //Default Position.
 	int y = 0;
-
 	
 	public Board() {
 		super("Team 3 Tetris");
+		this.isNormal = true;
+		this.isPaused = false;
 		applyDifficulty(); // 난이도 설정 불러오기 
-
+		applyGameSize();
 		// Initialize board for the game.
 		gameScore = new GameScore(difficulty);
 		board = new int[HEIGHT][WIDTH];
 		inactiveBlock = new int[HEIGHT][WIDTH];
 		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
 		playerKeyListener = new PlayerKeyListener();
-		addKeyListener(playerKeyListener);
-		setFocusable(true);
-		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
-		setDisplayAndLayout();
 
 	}
 
@@ -102,6 +101,11 @@ public class Board extends JFrame {
 			}
 		});
 
+		addKeyListener(playerKeyListener);
+		setFocusable(true);
+		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
+		setDisplayAndLayout();
+		
 		// Create block and draw.
 		curr = getRandomBlock(11, probability);
 		next = getRandomBlock(1, probability);
@@ -116,17 +120,18 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 
 		//Board display setting.
-		setSize(445,669);
+		setSize(gameSize*46,gameSize*(53-gameSizeType));
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.GRAY, 10),
-				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
-
+				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
+				BorderFactory.createLineBorder(Color.DARK_GRAY, frameSize));
+		
+		//MainBoard
 		pane = new JTextPane();
 		pane.setEditable(false);
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
-		pane.setBounds(0, 0, 300, 630);
+		pane.setBounds(gameSize*0, gameSize*0, gameSize*29, gameSize*49);
 		this.getContentPane().add(pane);
 
 		//PreviewBoard
@@ -134,7 +139,7 @@ public class Board extends JFrame {
 		previewPane.setEditable(false);
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border);
-		previewPane.setBounds(280, 0, 150, 130);
+		previewPane.setBounds(gameSize*31, gameSize*0, gameSize*13, gameSize*13);  
 		this.getContentPane().add(previewPane);
 
 		//ScoreBoard
@@ -142,7 +147,7 @@ public class Board extends JFrame {
 		scorePane.setEditable(false);
 		scorePane.setBorder(border);
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(280, 150, 130, 50);
+		scorePane.setBounds(gameSize*31, gameSize*13, gameSize*13, gameSize*5);
 		scorePane.setBorder(border2);
 		scorePane.setText("Score : "+ gameScore.getScore());
 		this.getContentPane().add(scorePane);
@@ -152,17 +157,28 @@ public class Board extends JFrame {
 		levelPane.setEditable(false);
 		levelPane.setBorder(border);
 		TitledBorder border3 = BorderFactory.createTitledBorder("LEVEL");
-		levelPane.setBounds(280, 410, 130, 50);
+		levelPane.setBounds(gameSize*31, gameSize*28, gameSize*13, gameSize*5);
 		levelPane.setBorder(border3);
 		levelPane.setText("Level : "+ gameScore.getLevel());
 		this.getContentPane().add(levelPane);
 		
+		//GameModeBar
+		gameModeBar = new JTextPane();
+		gameModeBar.setEditable(false);
+		gameModeBar.setBorder(border);
+		TitledBorder border4 = BorderFactory.createTitledBorder("GameMode");
+		gameModeBar.setBounds(gameSize*31, gameSize*33,gameSize*13, gameSize*5);
+		gameModeBar.setBorder(border4);
+		String txt = isNormal ? "Normal Mode" : "Item Mode";
+		gameModeBar.setText(txt);	
+		this.getContentPane().add(gameModeBar);
+		
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
-		TitledBorder border4 = BorderFactory.createTitledBorder("DIFFICULTY");
-		difficultyBar.setBounds(280, 480, 130, 50);	
-		difficultyBar.setBorder(border4); 
+		TitledBorder border5 = BorderFactory.createTitledBorder("DIFFICULTY");
+		difficultyBar.setBounds(gameSize*31, gameSize*38, gameSize*13, gameSize*5);
+		difficultyBar.setBorder(border5); 
 		difficultyBar.setText(difficulty.getStringDifficulty());		
 		this.getContentPane().add(difficultyBar);
 
@@ -171,9 +187,9 @@ public class Board extends JFrame {
 		//statusBar
 		statusBar = new JTextPane();
 		statusBar.setEditable(false);
-		TitledBorder border5 = BorderFactory.createTitledBorder("STATUS");
-		statusBar.setBounds(280, 550, 130, 50);
-		statusBar.setBorder(border5);
+		TitledBorder border6 = BorderFactory.createTitledBorder("STATUS");
+		statusBar.setBounds(gameSize*31, gameSize*43, gameSize*13, gameSize*5);
+		statusBar.setBorder(border6);
 		statusBar.setText("Playing!");
 		this.getContentPane().add(statusBar);
 
@@ -186,8 +202,8 @@ public class Board extends JFrame {
 
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
-		StyleConstants.setFontSize(styleSet, 20);
-		StyleConstants.setFontFamily(styleSet, "Dialog");
+		StyleConstants.setFontSize(styleSet, gameSize*2);
+		StyleConstants.setFontFamily(styleSet, "MS GOTHIC");
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
@@ -211,7 +227,14 @@ public class Board extends JFrame {
 		initInterval = difficulty.getSpeed();
 		probability = difficulty.getProbability();
 	}
-
+	
+	private void applyGameSize() {
+		settingGameSize = new GameSize(1);		// 설정창과 연결하기		
+		gameSize = settingGameSize.getGameSize();	
+		gameSizeType = settingGameSize.getGameSizeType(); 
+		frameSize = settingGameSize.getFrameSize();	
+	}
+	
 	public void levelUp() {
 		gameScore.levelUp();
 		initInterval = difficulty.getSpeed();
@@ -221,7 +244,10 @@ public class Board extends JFrame {
 	}
 	
 	private void pause() {
-
+		/*
+		 * 1. P와 ESC를 제외한 나머지의 키 입력을 제한
+		 * 
+		 */
         isPaused = !isPaused;
 
         if (isPaused) {
@@ -237,7 +263,7 @@ public class Board extends JFrame {
 		timer.stop();
 		Scoreboard sb = null;
 		try {
-			sb = new Scoreboard(null,Board.this);
+			sb = new Scoreboard(gameScore, Board.this);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -264,8 +290,6 @@ public class Board extends JFrame {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 //		StyleConstants.setForeground(styles, curr.getColor());
-		
-		gameOverCheck();
 		
 		for(int j=0; j<curr.height(); ++j) {
 			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
@@ -475,9 +499,6 @@ public class Board extends JFrame {
 	}
 
 	private void hardDrop() {
-		// inactiveBlock == 1일 때까지 y를 1씩 증가해가면서 
-		// inactiveBlock[][x]에 현재 블럭 모양 대입
-		// 내려간 line 개수만큼 addScore();
 		int lineCount = 0;
 		eraseCurr();
 		for(; y < HEIGHT; ++y) {
@@ -493,8 +514,6 @@ public class Board extends JFrame {
 				return;
 			}
 		}
-		
-		
 		// hardDrop 후 방향키 입력 시 분신술? drawBoard()
 		
 	}
@@ -524,6 +543,7 @@ public class Board extends JFrame {
 			x = 3;
 			y = 0;
 			placeBlock();
+			gameOverCheck();
 		}
 	} 
 	
@@ -577,7 +597,7 @@ public class Board extends JFrame {
 				} else if(board[i][j] == 2){
 					sb.append("L");
 				} else {
-					sb.append("   ");
+					sb.append("  ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
 			}
 			sb.append(BORDER_CHAR); // 오른쪽 벽
