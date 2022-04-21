@@ -40,6 +40,11 @@ public class GameScore {
 		addition += difficulty.getSpeed() / 100;
 	}
 	
+	// 보너스 점수
+	public void addBonusScore(int bonus) {
+		score += bonus;
+	}
+	
 	// 점수 증가
     public void addScore(){
         score += addition;

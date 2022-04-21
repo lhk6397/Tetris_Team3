@@ -13,10 +13,13 @@ import javax.swing.text.StyledDocument;
 
 public class ItemBoard extends Board {
     private JTextPane modePane;
+	
+    private final int bonus = 1000;
 
     public int count = 0;
     public boolean isFeverTime = false;
     public boolean isFieldClear = false;
+    private boolean isBonusScore = false;
     
     public ItemBoard() {
         super();
@@ -29,17 +32,18 @@ public class ItemBoard extends Board {
         count++;
         if (count % 10 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*num);
-            int number = rnd.nextInt(4);
+            int number = rnd.nextInt(5);
             switch (number) {
                 case 0:
-                    return createItemLineClear(super.getRandomBlock(num, probability));
+                	return createWeightBlock();
                 case 1:
-                	return createItemFieldClear(super.getRandomBlock(num, probability));
+                	return createItemLineClear(super.getRandomBlock(num, probability));
                 case 2:
-                    return createWeightBlock();
+                	return createItemFieldClear(super.getRandomBlock(num, probability));
                 case 3:
                 	return createItemFeverTime(super.getRandomBlock(num, probability));
-                	
+                case 4:
+                	return createItemBonusScore(super.getRandomBlock(num, probability));
             }
         } return super.getRandomBlock(11, probability);
     }
@@ -50,6 +54,7 @@ public class ItemBoard extends Board {
 			if(inactiveBlock[lineNum][i] <= 0) {
 				isFieldClear = false;
 				isFeverTime = false;
+				isBonusScore = false;
 				return false;
 			}
 			
@@ -64,6 +69,9 @@ public class ItemBoard extends Board {
 					break;
 				case 4:
 					isFeverTime = true;
+					break;
+				case 5:
+					isBonusScore = true;
 				default:
 					break;
 				}
@@ -73,7 +81,7 @@ public class ItemBoard extends Board {
 		return true;
 	}
   
-    public void clearCurrentLine(int lineNum) {
+    private void clearCurrentLine(int lineNum) {
     	// inactiveBlock[][] 한 칸씩 내려오기
 		for(int rows = lineNum - 1; rows >= 0; --rows) {
 			for(int cols = 0; cols < WIDTH; ++cols) {
@@ -95,7 +103,7 @@ public class ItemBoard extends Board {
     	
     }
     
-    public void fieldClear() {
+    private void fieldClear() {
     	int elementCount = 0;
     	for(int j = HEIGHT -1; j > 0; --j) {
     		for(int i = 0; i < WIDTH; ++i) {
@@ -122,8 +130,14 @@ public class ItemBoard extends Board {
 				gameScore.setAdditionDefault();
 			}
 		});
+    	isFeverTime = false;
     	FeverTimer.setRepeats(false); // Only Execute once
     	FeverTimer.start();
+    }
+    
+    private void addBonusScore() {
+    	gameScore.addBonusScore(bonus);
+    	isBonusScore = false;
     }
     
     @Override
@@ -139,8 +153,13 @@ public class ItemBoard extends Board {
  					fieldClear();
  					return;
  				}
+ 				
  				if(isFeverTime) {
  					setFeverTime();
+ 				}
+ 				
+ 				if(isBonusScore) {
+ 					addBonusScore();
  				}
  				
  				combo++; // 붙어서 삭제되는 줄의 수
@@ -219,6 +238,26 @@ public class ItemBoard extends Board {
         }
     }
 
+//    private void hardDropByWeightBlock() {
+//		int lineCount = 0;
+//		eraseCurr();
+//		for(; y < HEIGHT; ++y) {
+//			lineCount++;
+//			if(!checkBottom()) {
+//				placeBlock();
+//				inactivateBlock();
+//				while(lineCount > 0) {
+//					gameScore.addScore();
+//					lineCount--;
+//				}
+//				updateScore();
+//				return;
+//			}
+//		}
+//		// hardDrop 후 방향키 입력 시 분신술? drawBoard()
+//		
+//	}
+    
     //WeightBlock 함수
     private void moveDownWeightBlock() {
         if (!checkFloor()) {
@@ -323,6 +362,31 @@ public class ItemBoard extends Board {
         return block;
     }
     
+    private Block createItemBonusScore(Block block) {
+    	int n = block.width();
+        int m = block.height();
+        Random rnd = new Random(System.currentTimeMillis()*11);
+        int num = rnd.nextInt(4);
+        int cnt = 0;
+        int[][] BSblock = new int[n][m];
+
+        for (int i=0; i<n;i++) {
+            for (int j=0;j<m;j++) {
+                if (block.getShape(i,j) == 0) {
+                	BSblock[i][j] = 0;
+                    continue;
+                } 
+                cnt ++;
+                if (cnt == num) {
+                	BSblock[i][j] = 5;
+                    continue;
+                } else BSblock[i][j] = 1;
+            }
+        }
+        block.setShape(BSblock);
+        return block;
+    }
+    
     @Override
     public void drawBoard() {
 		StyleConstants.setForeground(styleSet, curr.getColor());
@@ -340,6 +404,8 @@ public class ItemBoard extends Board {
 					sb.append("C");
 				} else if(board[i][j] == 4) {
 					sb.append("F");
+				} else if(board[i][j] == 5) {
+					sb.append("B");
 				} else {
 					sb.append("  ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
@@ -371,6 +437,8 @@ public class ItemBoard extends Board {
 					sb2.append("C");
 				} else if(previewBoard[i][j] == 4) {
 					sb2.append("F");
+				} else if(previewBoard[i][j] == 5) {
+					sb2.append("B");
 				} else {
 					sb2.append("  ");
 				}
