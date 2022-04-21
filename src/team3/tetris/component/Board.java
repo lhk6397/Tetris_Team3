@@ -16,7 +16,9 @@ import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import team3.tetris.blocks.Block;
 import team3.tetris.blocks.IBlock;
@@ -53,13 +55,10 @@ public class Board extends JFrame {
 	protected double initInterval; 
 	protected boolean isNormal;
 	protected boolean isPaused;
-	protected Block curr;
-	protected Block next;
-
 	protected JTextPane pane;
-	protected JTextPane previewPane;
-	private String status;
 	protected SimpleAttributeSet styleSet;
+	protected Block curr;
+	protected JTextPane previewPane;
 	protected JTextPane scorePane;
 	protected JTextPane statusBar;
 	protected JTextPane levelPane;
@@ -106,7 +105,7 @@ public class Board extends JFrame {
 		setFocusable(true);
 		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
 		setDisplayAndLayout();
-
+		
 		// Create block and draw.
 		curr = getRandomBlock(11, probability);
 		next = getRandomBlock(1, probability);
@@ -174,9 +173,10 @@ public class Board extends JFrame {
 		gameModeBar.setBounds(gameSize*22, gameSize*33,gameSize*13, gameSize*5);
 		gameModeBar.setBorder(border4);
 		gameModeBar.setFont(font);
-		gameModeBar.setText("GameMode");
+		String txt = isNormal ? "Normal Mode" : "Item Mode";
+		gameModeBar.setText(txt);
 		this.getContentPane().add(gameModeBar);
-
+		
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
@@ -186,8 +186,6 @@ public class Board extends JFrame {
 		difficultyBar.setFont(font);
 		difficultyBar.setText(difficulty.getStringDifficulty());
 		this.getContentPane().add(difficultyBar);
-
-
 
 		//statusBar
 		statusBar = new JTextPane();
@@ -208,7 +206,7 @@ public class Board extends JFrame {
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, gameSize*2);
 		StyleConstants.setFontFamily(styleSet, "Britannic Bold");
-
+		
 		// Britannic Bold
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
@@ -235,10 +233,10 @@ public class Board extends JFrame {
 	}
 
 	private void applyGameSize() {
-		settingGameSize = new GameSize(0);		// 설정창과 연결하기
-		gameSize = settingGameSize.getGameSize();
-		gameSizeType = settingGameSize.getGameSizeType();
-		frameSize = settingGameSize.getFrameSize();
+		settingGameSize = new GameSize(1);		// 설정창과 연결하기
+		gameSize = settingGameSize.getGameSize();	
+		gameSizeType = settingGameSize.getGameSizeType(); 
+		frameSize = settingGameSize.getFrameSize();	
 	}
 
 	public void levelUp() {
