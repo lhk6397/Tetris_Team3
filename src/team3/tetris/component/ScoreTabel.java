@@ -22,7 +22,7 @@ class ScoreTable extends JPanel{
 	JLabel levelLabel;
 	JLabel modeLabel;
 	Record recordTable;
-	String mode = "normal";
+	String mode;
 	String difficulty;
 
 	public ScoreTable(String mode, String difficulty) throws IOException {

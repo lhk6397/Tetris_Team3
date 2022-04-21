@@ -25,7 +25,7 @@ public class Difficulty {
 	}
 
 	
-	// 일정 수 줄 삭제 -> speed 증가(난이도에 따라) = setSpeed()
+	// 일정 수 줄 삭제 -> speed 증가(난이도에 따라) = Interval 감소 = setSpeed()
 	public static void setSpeed(){
 		switch(difficulty){
 		case 0:

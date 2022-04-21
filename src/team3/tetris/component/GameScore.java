@@ -4,18 +4,21 @@ import team3.tetris.control.Difficulty;
 
 public class GameScore {
 	
+	private final int unitScore = 10;
+	
 	Difficulty difficulty;
 	private int level;
     private int score;
     private int addition; // 더해지는 점수
 	private String mode;
+    private int tempAddition;
 
     public GameScore(Difficulty difficulty) 
     {
     	this.difficulty = difficulty;
     	this.level = 1;
         this.score = 0; 
-        this.addition = 10;
+        this.addition = unitScore;
     }
 
     // 점수 반환
@@ -23,13 +26,23 @@ public class GameScore {
 		return score;
 	}
 	
+	// level 반환
 	public int getLevel() {
 		return level;
+	}
+	
+	public int getAddition() {
+		return addition;
 	}
 	
 	// addition 값 조정 by speed
 	public void setAddition() {
 		addition += difficulty.getSpeed() / 100;
+	}
+	
+	// 보너스 점수
+	public void addBonusScore(int bonus) {
+		score += bonus;
 	}
 	
 	// 점수 증가
@@ -47,6 +60,15 @@ public class GameScore {
     	level++;
     	difficulty.setSpeed();
     	setAddition();
+    }
+    
+    /* for FeverTime Item in ItemMode */
+    public void setFeverAddtion() {
+    	addition *= 2;
+    }
+    
+    public void setAdditionDefault() {
+    	addition /= 2;
     }
 
 	public String getMode() {

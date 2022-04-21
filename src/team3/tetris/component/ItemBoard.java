@@ -2,34 +2,48 @@ package team3.tetris.component;
 
 import team3.tetris.blocks.*;
 
-import javax.swing.*;
-import java.util.Arrays;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Random;
+
+import javax.swing.JTextPane;
+import javax.swing.Timer;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 public class ItemBoard extends Board {
     private JTextPane modePane;
 
+    private final int bonus = 1000;
+
     public int count = 0;
+    public boolean isFeverTime = false;
     public boolean isFieldClear = false;
-    
+    private boolean isBonusScore = false;
+
     public ItemBoard() {
         super();
+        super.isNormal = false;
     }
 
 
     @Override
     protected Block getRandomBlock(int num, int blocks) {
         count++;
-        if (count % 2 == 0) {
-            Random rnd = new Random(System.currentTimeMillis()*11);
-            int number = rnd.nextInt(3);
+        if (count % 10 == 0) {
+            Random rnd = new Random(System.currentTimeMillis()*num);
+            int number = rnd.nextInt(5);
             switch (number) {
                 case 0:
-                    return createItemLineClear(super.getRandomBlock(11, probability));
+                	return createWeightBlock();
                 case 1:
-                    return createItemFieldClear(super.getRandomBlock(11, probability));
+                	return createItemLineClear(super.getRandomBlock(num, probability));
                 case 2:
-                    return createWeightBlock();
+                	return createItemFieldClear(super.getRandomBlock(num, probability));
+                case 3:
+                	return createItemFeverTime(super.getRandomBlock(num, probability));
+                case 4:
+                	return createItemBonusScore(super.getRandomBlock(num, probability));
             }
         } return super.getRandomBlock(11, probability);
     }
@@ -39,6 +53,8 @@ public class ItemBoard extends Board {
 		for(int i = 0; i < WIDTH; ++i) {
 			if(inactiveBlock[lineNum][i] <= 0) {
 				isFieldClear = false;
+				isFeverTime = false;
+				isBonusScore = false;
 				return false;
 			}
 			
@@ -46,11 +62,16 @@ public class ItemBoard extends Board {
 			if(element >= 2) {
 				switch(element) {
 				case 2:
-					// lineClear
+					clearCurrentLine(lineNum);
 					break;
 				case 3:
 					isFieldClear = true;
 					break;
+				case 4:
+					isFeverTime = true;
+					break;
+				case 5:
+					isBonusScore = true;
 				default:
 					break;
 				}
@@ -59,16 +80,41 @@ public class ItemBoard extends Board {
 		}
 		return true;
 	}
-    
-    public void fieldClear() {
-    	// int elementCount = 0;
+
+    private void clearCurrentLine(int lineNum) {
+    	// inactiveBlock[][] 한 칸씩 내려오기
+		for(int rows = lineNum - 1; rows >= 0; --rows) {
+			for(int cols = 0; cols < WIDTH; ++cols) {
+				inactiveBlock[rows+1][cols] = inactiveBlock[rows][cols];
+			}
+		}
+		inactiveBlock[0] = new int[WIDTH];
+
+		// board[][] 한 칸씩 내려오기
+		for(int rows = lineNum - 1; rows >= 0; --rows) {
+			for(int cols = 0; cols < WIDTH; ++cols) {
+				board[rows+1][cols] = board[rows][cols];
+			}
+		}
+		board[0] = new int[WIDTH];
+
+		gameScore.lineClear(1);
+		updateScore();
+
+    }
+
+    private void fieldClear() {
+    	int elementCount = 0;
     	for(int j = HEIGHT -1; j > 0; --j) {
     		for(int i = 0; i < WIDTH; ++i) {
     			if(inactiveBlock[j][i] >= 1) {
-    				// elementCount++;
-    		    	gameScore.addScore();
+    				elementCount++;
     			}
     		}
+    	}
+
+    	for(int i = 0 ; i < elementCount / WIDTH; ++i) {
+    		gameScore.addScore();
     	}
     	isFieldClear = false;
     	updateScore();
@@ -76,9 +122,26 @@ public class ItemBoard extends Board {
     	drawBoard();
     }
 
-    // 해결과졔: 2111113111와 같이 아이템이 중첩되어 있는 라인의 경우 어떻게? FieldClear로 가시죳
+    public void setFeverTime() {
+    	gameScore.setFeverAddtion();
+    	Timer FeverTimer = new Timer(10000, new ActionListener() { // initInterval 마다 actionPerformed
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				gameScore.setAdditionDefault();
+			}
+		});
+    	isFeverTime = false;
+    	FeverTimer.setRepeats(false); // Only Execute once
+    	FeverTimer.start();
+    }
+
+    private void addBonusScore() {
+    	gameScore.addBonusScore(bonus);
+    	isBonusScore = false;
+    }
+
     @Override
- 	protected void lineClear() {
+ 	protected void lineClearCheck() {
  		int combo = 0; // 붙어서 삭제 되는 line 수
  		for(int j = HEIGHT - 1; j >0; --j) {
  			if(!checkLineFull(j)) {
@@ -90,6 +153,15 @@ public class ItemBoard extends Board {
  					fieldClear();
  					return;
  				}
+
+ 				if(isFeverTime) {
+ 					setFeverTime();
+ 				}
+
+ 				if(isBonusScore) {
+ 					addBonusScore();
+ 				}
+
  				combo++; // 붙어서 삭제되는 줄의 수
  				
  				// inactiveBlock[][] 한 칸씩 내려오기
@@ -180,12 +252,13 @@ public class ItemBoard extends Board {
         } else {
             // inactiveBlock[][]에 블럭 모양 반영
             inactivateBlock();
-            lineClear();
+            lineClearCheck();
             curr = next;
             next = getRandomBlock(1, probability);
             x = 3;
             y = 0;
             placeBlock();
+            gameOverCheck();
         }
     }
 
@@ -207,16 +280,16 @@ public class ItemBoard extends Board {
             else {
                 // inactiveBlock[][]에 블럭 모양 반영
                 inactivateBlock();
-                lineClear();
+                lineClearCheck();
                 curr = next;
                 next = getRandomBlock(1,probability);
                 x = 3;
                 y = 0;
                 placeBlock();
+                gameOverCheck();
             }
         }
     }
-
 
     //FieldClear block 생성 함수
     private Block createItemFieldClear(Block block) {
@@ -244,5 +317,119 @@ public class ItemBoard extends Board {
         return block;
     }
     
-    
+    private Block createItemFeverTime(Block block) {
+    	int n = block.width();
+        int m = block.height();
+        Random rnd = new Random(System.currentTimeMillis()*11);
+        int num = rnd.nextInt(4);
+        int cnt = 0;
+        int[][] FTblock = new int[n][m];
+
+        for (int i=0; i<n;i++) {
+            for (int j=0;j<m;j++) {
+                if (block.getShape(i,j) == 0) {
+                	FTblock[i][j] = 0;
+                    continue;
+                }
+                cnt ++;
+                if (cnt == num) {
+                	FTblock[i][j] = 4;
+                    continue;
+                } else FTblock[i][j] = 1;
+            }
+        }
+        block.setShape(FTblock);
+        return block;
+    }
+
+    private Block createItemBonusScore(Block block) {
+    	int n = block.width();
+        int m = block.height();
+        Random rnd = new Random(System.currentTimeMillis()*11);
+        int num = rnd.nextInt(4);
+        int cnt = 0;
+        int[][] BSblock = new int[n][m];
+
+        for (int i=0; i<n;i++) {
+            for (int j=0;j<m;j++) {
+                if (block.getShape(i,j) == 0) {
+                	BSblock[i][j] = 0;
+                    continue;
+                }
+                cnt ++;
+                if (cnt == num) {
+                	BSblock[i][j] = 5;
+                    continue;
+                } else BSblock[i][j] = 1;
+            }
+        }
+        block.setShape(BSblock);
+        return block;
+    }
+
+    @Override
+    public void drawBoard() {
+		StyleConstants.setForeground(styleSet, curr.getColor());
+		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
+		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 윗쪽 벽
+		sb.append("\n");
+		for(int i=0; i < board.length; i++) {
+			sb.append(BORDER_CHAR); // 왼쪽 벽
+			for(int j=0; j < board[i].length; j++) { // 블럭에 해당되는 부분 draw
+				if(board[i][j] == 1) {
+					sb.append("■");
+				} else if(board[i][j] == 2){
+					sb.append("L");
+				} else if(board[i][j] == 3) {
+					sb.append("C");
+				} else if(board[i][j] == 4) {
+					sb.append("F");
+				} else if(board[i][j] == 5) {
+					sb.append("B");
+				} else {
+					sb.append("  ");
+				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
+			}
+			sb.append(BORDER_CHAR); // 오른쪽 벽
+			sb.append("\n");
+		}
+		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 아랫쪽 벽
+		pane.setText(sb.toString());
+		StyledDocument doc = pane.getStyledDocument();
+		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
+		pane.setStyledDocument(doc);
+		drawPreviewBoard();
+	}
+
+    @Override
+	public void drawPreviewBoard() {
+		StyleConstants.setForeground(styleSet, next.getColor());
+		StringBuilder sb2 = new StringBuilder();
+
+		sb2.append("\n");
+		for(int i=0; i < previewBoard.length; i++) {
+			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
+				if(previewBoard[i][j] == 1) {
+					sb2.append("■");
+				} else if(previewBoard[i][j] == 2){
+					sb2.append("L");
+				} else if(previewBoard[i][j] == 3) {
+					sb2.append("C");
+				} else if(previewBoard[i][j] == 4) {
+					sb2.append("F");
+				} else if(previewBoard[i][j] == 5) {
+					sb2.append("B");
+				} else {
+					sb2.append("  ");
+				}
+			}
+			sb2.append("\n");
+		}
+
+		previewPane.setText(sb2.toString());
+		StyledDocument doc = previewPane.getStyledDocument();
+		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
+		previewPane.setStyledDocument(doc);
+	}
+
 }
