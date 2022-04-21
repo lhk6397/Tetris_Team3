@@ -25,9 +25,9 @@ public class ItemBoard extends Board {
 
 
     @Override
-    protected Block getRandomBlock(int num, int probability) {
+    protected Block getRandomBlock(int num, int blocks) {
         count++;
-        if (count % 3 == 0) {
+        if (count % 10 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*num);
             int number = rnd.nextInt(4);
             switch (number) {
@@ -41,7 +41,7 @@ public class ItemBoard extends Board {
                 	return createItemFeverTime(super.getRandomBlock(num, probability));
                 	
             }
-        } return super.getRandomBlock(num, probability);
+        } return super.getRandomBlock(11, probability);
     }
 
     @Override

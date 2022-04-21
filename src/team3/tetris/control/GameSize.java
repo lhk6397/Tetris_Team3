@@ -33,14 +33,14 @@ public class GameSize {
 			gameSize = 10;
 			break;
 		case 1:
-			gameSize = 13;
+			gameSize = 15;
 			break;
 		case 2:
-			gameSize = 16;
+			gameSize = 20;
 			break;
 		}
 	}
-
+	
 	public static void setFontSize() {
 		switch(gameSizeType){
 		case 0:
@@ -54,7 +54,7 @@ public class GameSize {
 			break;
 		}
 	} 
-
+	
 	public static void setFrameSize() {
 		switch(gameSizeType){
 		case 0:
@@ -76,11 +76,11 @@ public class GameSize {
 	public static int getGameSize() {
 		return gameSize;
 	}
-
+	
 	public static int getFontSize() {
 		return fontSize;
 	} 
-
+	
 	public static int getFrameSize() {
 		return frameSize;
 	}

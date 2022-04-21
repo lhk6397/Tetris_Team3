@@ -124,7 +124,6 @@ public class Board extends JFrame {
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, frameSize));
-		
 		//MainBoard
 		pane = new JTextPane();
 		pane.setEditable(false);
