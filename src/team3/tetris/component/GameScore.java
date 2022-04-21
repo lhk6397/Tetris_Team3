@@ -11,6 +11,7 @@ public class GameScore {
     private int score;
     private int addition; // 더해지는 점수
 	private String mode;
+    private int tempAddition;
 
     public GameScore(Difficulty difficulty) 
     {
@@ -25,8 +26,13 @@ public class GameScore {
 		return score;
 	}
 	
+	// level 반환
 	public int getLevel() {
 		return level;
+	}
+	
+	public int getAddition() {
+		return addition;
 	}
 	
 	// addition 값 조정 by speed
@@ -49,6 +55,15 @@ public class GameScore {
     	level++;
     	difficulty.setSpeed();
     	setAddition();
+    }
+    
+    /* for FeverTime Item in ItemMode */
+    public void setFeverAddtion() {
+    	addition *= 2;
+    }
+    
+    public void setAdditionDefault() {
+    	addition /= 2;
     }
 
 	public String getMode() {

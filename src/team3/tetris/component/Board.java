@@ -54,22 +54,21 @@ public class Board extends JFrame {
 	protected double initInterval; 
 	protected boolean isNormal;
 	protected boolean isPaused;
-	
-	private JTextPane pane;
-	private JTextPane previewPane;
-	private JTextPane scorePane;
-	private JTextPane statusBar;
-	private JTextPane levelPane;
-	private JTextPane difficultyBar;
-	private JTextPane gameModeBar;
-	private JTextPane background;
-	private int[][] previewBoard;
-	private KeyListener playerKeyListener;
-	private SimpleAttributeSet styleSet;
-	private Timer timer;
-	private Block curr;
-	private Block next;
-	private String status;
+	protected JTextPane pane;
+	protected SimpleAttributeSet styleSet;
+	protected Block curr;
+	protected JTextPane previewPane;
+	protected JTextPane scorePane;
+	protected JTextPane statusBar;
+	protected JTextPane levelPane;
+	protected JTextPane difficultyBar;
+	protected JTextPane gameModeBar;
+	protected JTextPane background;
+	protected int[][] previewBoard;
+	protected KeyListener playerKeyListener;
+	protected Timer timer;
+	protected Block next;
+	protected String status;
 	
 	int x = 3; //Default Position.
 	int y = 0;
@@ -222,20 +221,20 @@ public class Board extends JFrame {
 		else return new IBlock();
 	}
 	
-	private void applyDifficulty() {
+	protected void applyDifficulty() {
 		difficulty = new Difficulty(2);			// 처음 설정창과 연결하기 () 부분 난이도 설정 
 		initInterval = difficulty.getSpeed();
 		probability = difficulty.getProbability();
 	}
 	
-	private void applyGameSize() {
+	protected void applyGameSize() {
 		settingGameSize = new GameSize(1);		// 설정창과 연결하기		
 		gameSize = settingGameSize.getGameSize();	
 		gameSizeType = settingGameSize.getGameSizeType(); 
 		frameSize = settingGameSize.getFrameSize();	
 	}
 	
-	public void levelUp() {
+	protected void levelUp() {
 		gameScore.levelUp();
 		initInterval = difficulty.getSpeed();
 		timer.setDelay((int)initInterval);
@@ -243,7 +242,7 @@ public class Board extends JFrame {
 		statusBar.setText("LEVEL UP!!");
 	}
 	
-	private void pause() {
+	protected void pause() {
 		/*
 		 * 1. P와 ESC를 제외한 나머지의 키 입력을 제한
 		 * 
@@ -259,7 +258,7 @@ public class Board extends JFrame {
         statusBar.setText(status);
     }
 	
-	private void escape() {
+	protected void escape() {
 		timer.stop();
 		Scoreboard sb = null;
 		try {
@@ -270,7 +269,7 @@ public class Board extends JFrame {
 		sb.setVisible(true);
 	}
 	
-	private void placePreBlock() {
+	protected void placePreBlock() {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 //		StyleConstants.setForeground(styles, next.getColor());
@@ -318,7 +317,7 @@ public class Board extends JFrame {
 		}
 	}
 	
-	public void updateScore(){
+	protected void updateScore(){
         scorePane.setText("Score : "+ gameScore.getScore());
     }
 	
@@ -331,7 +330,7 @@ public class Board extends JFrame {
 		}  		 
 	}
 	
-	private void eraseNext() {
+	protected void eraseNext() {
 		for(int i = 0; i < PREVIEWWIDTH; i++) {
 			for(int j=0; j < PREVIEWHEIGHT; j++) {
 				previewBoard[j][i] = 0; 
@@ -340,7 +339,7 @@ public class Board extends JFrame {
 	}
 	
 	// 줄 삭제
-	protected void lineClear() {
+	protected void lineClearCheck() {
 		int combo = 0; // 붙어서 삭제 되는 line 수
 		for(int j = HEIGHT - 1; j >0; --j) {
 			if(!checkLineFull(j)) {
@@ -470,7 +469,7 @@ public class Board extends JFrame {
 	}
 	
 	// git issues 해결중
-	public boolean rotateCheck() {
+	protected boolean rotateCheck() {
 		Block temp = curr.clone();
 		temp.rotate();
 		int w = temp.width();
@@ -498,7 +497,7 @@ public class Board extends JFrame {
 		
 	}
 
-	private void hardDrop() {
+	protected void hardDrop() {
 		int lineCount = 0;
 		eraseCurr();
 		for(; y < HEIGHT; ++y) {
@@ -537,7 +536,7 @@ public class Board extends JFrame {
 		else {
 			// inactiveBlock[][]에 블럭 모양 반영
 			inactivateBlock();
-			lineClear();
+			lineClearCheck();
 			curr = next;
 			next = getRandomBlock(1,probability);
 			x = 3;
@@ -598,7 +597,7 @@ public class Board extends JFrame {
 					sb.append("L");
 				} else {
 					sb.append("  ");
-				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
+				}
 			}
 			sb.append(BORDER_CHAR); // 오른쪽 벽
 			sb.append("\n");
@@ -638,6 +637,7 @@ public class Board extends JFrame {
 	public void reset() {
 		this.board = new int[HEIGHT][WIDTH];
 		this.previewBoard = new int [PREVIEWHEIGHT][PREVIEWWIDTH];
+		this.inactiveBlock = new int[HEIGHT][WIDTH];
 	}
 
 	public class PlayerKeyListener implements KeyListener { // key 입력
