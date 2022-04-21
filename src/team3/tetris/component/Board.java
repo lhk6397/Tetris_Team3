@@ -1,6 +1,6 @@
 package team3.tetris.component;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -15,9 +15,7 @@ import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
 
 import team3.tetris.blocks.Block;
 import team3.tetris.blocks.IBlock;
@@ -38,7 +36,7 @@ public class Board extends JFrame {
 	public static final int PREVIEWHEIGHT = 5;
 	public static final int PREVIEWWIDTH = 5;
 	public static final int TARGET_COUNT = 10;
-	public static final char BORDER_CHAR = '○';
+	public static final String BORDER_CHAR = "○";
 
 	public Difficulty difficulty;
 	protected GameScore gameScore;
@@ -52,6 +50,8 @@ public class Board extends JFrame {
 	protected double initInterval;
 	protected boolean isNormal;
 	protected boolean isPaused;
+	protected Block curr;
+	protected Block next;
 
 	private JTextPane pane;
 	private JTextPane previewPane;
@@ -65,8 +65,7 @@ public class Board extends JFrame {
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
-	private Block curr;
-	private Block next;
+
 	private String status;
 	
 	int x = 3; //Default Position.
@@ -123,7 +122,6 @@ public class Board extends JFrame {
 				BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
 
 		pane = new JTextPane();
-		pane.setEditable(false);
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
 		pane.setBounds(0, 0, 300, 630);
@@ -563,44 +561,40 @@ public class Board extends JFrame {
 			}
 		}
 	}
-	
+
 	public void drawBoard() {
-		StyleConstants.setForeground(styleSet, curr.getColor());
-		StringBuilder sb = new StringBuilder(); // 문자열 추가나 변경등의 작업이 많을 경우에는 StringBuilder를, 문자열 변경 작업이 거의 없는 경우에는 그냥 String을 사용하는 것이 유리
-		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 윗쪽 벽
-		sb.append("\n");
-		for(int i=0; i < board.length; i++) {
-			sb.append(BORDER_CHAR); // 왼쪽 벽
-			for(int j=0; j < board[i].length; j++) { // 블럭에 해당되는 부분 draw
-				if(board[i][j] == 1) {
-					sb.append("■");
-				} else if(board[i][j] == 2){
-					sb.append("L");
+		pane.setText("");
+		for(int t=0; t<WIDTH+2; t++) appendToPane(pane,BORDER_CHAR,Color.GRAY);
+		appendToPane(pane,"\n",Color.BLACK);
+		for(int i = 0; i<board.length; i++) {
+			appendToPane(pane,BORDER_CHAR,Color.GRAY);
+			for(int j=0;j<board[i].length;j++) {
+				if (board[i][j] == 11) {
+					appendToPane(pane, "L", Color.WHITE);
+				} else if (10 >= board[i][j] && board[i][j] > 0) {
+					appendToPane(pane,"■", blockByColor(board[i][j]));
 				} else {
-					sb.append("   ");
-				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
+					appendToPane(pane, "  ", Color.BLACK);
+				}
 			}
-			sb.append(BORDER_CHAR); // 오른쪽 벽
-			sb.append("\n");
+			appendToPane(pane,BORDER_CHAR,Color.GRAY);
+			appendToPane(pane,"\n", Color.BLACK);
 		}
-		for(int t=0; t<WIDTH+2; t++) sb.append(BORDER_CHAR); // 아랫쪽 벽
-		pane.setText(sb.toString());
-		StyledDocument doc = pane.getStyledDocument();
-		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
-		pane.setStyledDocument(doc);
+		for(int t=0; t<WIDTH+2; t++) appendToPane(pane,BORDER_CHAR,Color.GRAY);
+		appendToPane(pane,"\n",Color.BLACK);
 		drawPreviewBoard();
 	}
-	
+
 	public void drawPreviewBoard() {
 		StyleConstants.setForeground(styleSet, next.getColor());
-		StringBuilder sb2 = new StringBuilder(); 
-		
+		StringBuilder sb2 = new StringBuilder();
+
 		sb2.append("\n");
 		for(int i=0; i < previewBoard.length; i++) {
 			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
-				if(previewBoard[i][j] == 1) {
+				if(previewBoard[i][j] != 0) {
 					sb2.append("■");
-				} else if(board[i][j] == 2){
+				} else if(board[i][j] == 11){
 					sb2.append("L");
 				} else {
 					sb2.append("  ");
@@ -610,9 +604,48 @@ public class Board extends JFrame {
 		}
 
 		previewPane.setText(sb2.toString());
-		StyledDocument doc = previewPane.getStyledDocument();							
+		StyledDocument doc = previewPane.getStyledDocument();
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		previewPane.setStyledDocument(doc);
+	}
+
+	private Color blockByColor(int blockID) {
+		switch (blockID) {
+			case 1:
+				return Color.CYAN;
+			case 2:
+				return Color.BLUE;
+			case 3:
+				return Color.ORANGE;
+			case 4:
+				return Color.YELLOW;
+			case 5:
+				return Color.GREEN;
+			case 6:
+				return Color.MAGENTA;
+			case 7:
+				return Color.RED;
+			case 10:
+				return Color.WHITE;
+		}
+	return Color.BLACK;}
+
+
+	private void appendToPane(JTextPane tp, String msg, Color c)
+	{
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+
+		//Pane Style 지정 -->
+		aset = sc.addAttribute(aset, StyleConstants.FontFamily, "MONOSPACE");
+		aset = sc.addAttribute(aset, StyleConstants.FontSize, 20);
+		aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+		aset = sc.addAttribute(aset, StyleConstants.LineSpacing, 0.5f);
+
+		int len = tp.getDocument().getLength();
+		tp.setCaretPosition(len);
+		tp.setCharacterAttributes(aset, false);
+		tp.replaceSelection(msg);
 	}
 	
 	public void reset() {

@@ -20,7 +20,7 @@ public class ItemBoard extends Board {
     @Override
     protected Block getRandomBlock(int num, int blocks) {
         count++;
-        if (count % 5 == 0) {
+        if (count % 2 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*11);
             int number = rnd.nextInt(3);
             switch (number) {
@@ -140,9 +140,9 @@ public class ItemBoard extends Board {
                 }
                 cnt ++;
                 if (cnt == num) {
-                    LCblock[i][j] = 2;
+                    LCblock[i][j] = 11;
                     continue;
-                } else LCblock[i][j] = 1;
+                } else LCblock[i][j] = block.getId();
             }
         }
         block.setShape(LCblock);
@@ -235,9 +235,9 @@ public class ItemBoard extends Board {
                 } 
                 cnt ++;
                 if (cnt == num) {
-                    FCblock[i][j] = 3;
+                    FCblock[i][j] = 12;
                     continue;
-                } else FCblock[i][j] = 1;
+                } else FCblock[i][j] = block.getId();
             }
         }
         block.setShape(FCblock);

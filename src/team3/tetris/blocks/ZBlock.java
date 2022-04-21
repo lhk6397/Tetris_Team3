@@ -6,9 +6,10 @@ public class ZBlock extends Block {
 	private static final int ID = 7;
 	public ZBlock() {
 		shape = new int[][] { 
-			{1, 1, 0},
-			{0, 1, 1}
+			{7, 7, 0},
+			{0, 7, 7}
 		};
 		color = Color.RED;
+		id = 7;
 	}
 }

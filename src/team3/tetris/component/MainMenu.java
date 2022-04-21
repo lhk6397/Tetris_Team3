@@ -116,12 +116,12 @@ public class MainMenu extends JFrame implements ActionListener {
 			new Settings().setVisible(true);
 		}
 		else if(e.getSource() == scoreBoard) {
-			try {
-				new Scoreboard().setVisible(true);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			setVisible(false);
+//			try {
+//				new Scoreboard().setVisible(true);
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+//			setVisible(false);
 		}
 		else if(e.getSource() == exit) {
 			System.exit(0);
