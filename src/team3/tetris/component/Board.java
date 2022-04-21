@@ -126,7 +126,7 @@ public class Board extends JFrame {
 				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, frameSize));
 
-		Font font = new Font("Sans Serif", Font.PLAIN, (int)(gameSize*1.5));
+		Font font = new Font("Sans Serif", Font.PLAIN, (int)(gameSize*1.2));
 
 		//MainBoard
 		pane = new JTextPane();

@@ -14,10 +14,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.border.CompoundBorder;
 
-/*
- * 클래스: Scoreboard
- * 기능: 게임 종료 시 띄우는 Frame
- */
 
 public class Scoreboard extends JFrame{
 	private boolean isSubmitted;
