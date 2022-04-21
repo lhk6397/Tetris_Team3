@@ -121,13 +121,7 @@ public class InputPanel extends JPanel implements ActionListener {
 					}
 					break;
 				case KeyEvent.VK_ENTER:
-//					if(isTextField) {
-//						// 이름 기록 함수
-//						curBtn.requestFocus();
-//					} else {
-//						curBtn.doClick();
-//					}
-					// 메모리 문제로 enter키 누르면 강제 종료 됨...
+					okBtn.doClick();
 					break;
 				default:
 					break;

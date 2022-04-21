@@ -31,8 +31,6 @@ public class Settings extends JFrame implements ActionListener {
 	JButton exit;
 	JButton curBtn;
     
-	
-	
 	public Settings() {
 		super("Settings");
 		setSize(350, 300);
