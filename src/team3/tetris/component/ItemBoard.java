@@ -14,21 +14,21 @@ public class ItemBoard extends Board {
 
 
     @Override
-    protected Block getRandomBlock(int num, int blocks) {
+    protected Block getRandomBlock(int num, int probability) {
         count++;
         if (count % 3 == 0) {
-            Random rnd = new Random(System.currentTimeMillis()*11);
+            Random rnd = new Random(System.currentTimeMillis()*num);
             int number = rnd.nextInt(2);
             switch (number) {
                 case 0:
-                    return createItemLineClear(super.getRandomBlock(11, probability));
+                    return createItemLineClear(super.getRandomBlock(num, probability));
                 case 1: //다른 아이템 구상
                 case 2:
                     return createWeightBlock();
                 case 3:
-                	return createItemFieldClear(super.getRandomBlock(11, probability));
+                	return createItemFieldClear(super.getRandomBlock(num, probability));
             }
-        } return super.getRandomBlock(11, probability);
+        } return super.getRandomBlock(num, probability);
     }
 
     @Override
