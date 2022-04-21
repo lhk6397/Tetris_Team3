@@ -3,7 +3,7 @@ package team3.tetris.control;
 public class GameSize {
 	
 	private static int gameSizeType;	// 0 -> default , 1 -> big, 2-> full
-	private static int gameSize; 		// 10 -> default , 15 -> big, 20-> full		// 20 -> default , 25 -> big, 30-> full
+	private static int gameSize;
 	private static int frameSize;		// 5 -> default , 8 -> big, 1 -> full
 
 	public GameSize() {
@@ -30,10 +30,10 @@ public class GameSize {
 			gameSize = 10;
 			break;
 		case 1:
-			gameSize = 15;
+			gameSize = 13;
 			break;
 		case 2:
-			gameSize = 20;
+			gameSize = 16;
 			break;
 		}
 	}

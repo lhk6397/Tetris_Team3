@@ -30,9 +30,9 @@ public class ItemBoard extends Board {
     @Override
     protected Block getRandomBlock(int num, int blocks) {
         count++;
-        if (count % 10 == 0) {
+        if (count % 3 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*num);
-            int number = rnd.nextInt(5);
+            int number = rnd.nextInt(1);
             switch (number) {
                 case 0:
                 	return createWeightBlock();
@@ -164,34 +164,19 @@ public class ItemBoard extends Board {
  				
  				combo++; // 붙어서 삭제되는 줄의 수
  				
- 				// inactiveBlock[][] 한 칸씩 내려오기
- 				for(int rows = j - 1; rows >= 0; --rows) {
- 					for(int cols = 0; cols < WIDTH; ++cols) {
- 						inactiveBlock[rows+1][cols] = inactiveBlock[rows][cols];
- 					}
- 				}
- 				inactiveBlock[0] = new int[WIDTH];
- 				
- 				// board[][] 한 칸씩 내려오기
- 				for(int rows = j - 1; rows >= 0; --rows) {
- 					for(int cols = 0; cols < WIDTH; ++cols) {
- 						board[rows+1][cols] = board[rows][cols];
- 					}
- 				}
- 				board[0] = new int[WIDTH];
- 			}
- 			gameScore.lineClear(combo);
+ 				clearCurrentLine(j);
 
- 			while(combo > 0) {
- 				deletedLineCount++;
- 				combo--;
- 				if(deletedLineCount % TARGET_COUNT == 0) {
- 					levelUp();
- 				}
- 			}
- 			updateScore();
+				while(combo > 0) {
+					deletedLineCount++;
+					combo--;
+					if(deletedLineCount % TARGET_COUNT == 0) {
+						levelUp();
+					}
+				}
+				updateScore();
+			}
+ 			drawBoard();
  		}
- 		drawBoard();
  	}
     
     
@@ -238,25 +223,35 @@ public class ItemBoard extends Board {
         }
     }
 
-//    private void hardDropByWeightBlock() {
-//		int lineCount = 0;
-//		eraseCurr();
-//		for(; y < HEIGHT; ++y) {
-//			lineCount++;
-//			if(!checkBottom()) {
-//				placeBlock();
-//				inactivateBlock();
-//				while(lineCount > 0) {
-//					gameScore.addScore();
-//					lineCount--;
-//				}
-//				updateScore();
-//				return;
-//			}
-//		}
-//		// hardDrop 후 방향키 입력 시 분신술? drawBoard()
-//		
-//	}
+    
+    private void hardDropByWeightBlock() {
+    	int w = curr.width();
+        int st = y;
+		int lineCount = 0;
+		eraseCurr();
+		for(; y < HEIGHT; ++y) {
+			lineCount++;
+			
+			if(checkFloor()) {
+				for(int j = st; j < HEIGHT; ++j) {
+					for(int i = 0; i < w; ++i) {
+						inactiveBlock[j][x+i] = 0;
+						board[j][x+i] = 0;
+					}
+				}
+				placeBlock();
+				inactivateBlock();
+				while(lineCount > 0) {
+					gameScore.addScore();
+					lineCount--;
+				}
+				updateScore();
+				return;
+			}
+		}
+		// hardDrop 후 방향키 입력 시 분신술? drawBoard()
+		
+	}
     
     //WeightBlock 함수
     private void moveDownWeightBlock() {
@@ -386,6 +381,29 @@ public class ItemBoard extends Board {
         block.setShape(BSblock);
         return block;
     }
+    
+    @Override
+    protected void hardDrop() {
+    	 String itemName = curr.getClass().getSimpleName();
+         if(itemName.equals("WeightBlock")) hardDropByWeightBlock();
+         else {
+	    	 int lineCount = 0;
+	    	 eraseCurr();
+	    	 for(; y < HEIGHT; ++y) {
+	 			lineCount++;
+	 			if(!checkBottom()) {
+	 				placeBlock();
+	 				inactivateBlock();
+	 				while(lineCount > 0) {
+	 					gameScore.addScore();
+	 					lineCount--;
+	 				}
+	 				updateScore();
+	 				return;
+	 			}
+			}
+		}
+	}
     
     @Override
     public void drawBoard() {

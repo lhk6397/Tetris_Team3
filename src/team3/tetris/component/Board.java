@@ -120,7 +120,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 
 		//Board display setting.
-		setSize(gameSize*46,gameSize*(53-gameSizeType));
+		setSize(gameSize*38,gameSize*(53-gameSizeType));
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
@@ -135,7 +135,7 @@ public class Board extends JFrame {
 		pane.setBorder(border);
 		pane.setBounds(gameSize*0, gameSize*0, gameSize*20, gameSize*49);
 		this.getContentPane().add(pane);
-													//20
+		
 		//PreviewBoard
 		previewPane = new JTextPane();
 		previewPane.setEditable(false);
@@ -143,7 +143,7 @@ public class Board extends JFrame {
 		previewPane.setBorder(border);
 		previewPane.setBounds(gameSize*22, gameSize*0, gameSize*13, gameSize*13);  
 		this.getContentPane().add(previewPane); 
-								//29, 31
+		
 		//ScoreBoard
 		scorePane = new JTextPane();
 		scorePane.setEditable(false);
@@ -186,8 +186,6 @@ public class Board extends JFrame {
 		difficultyBar.setFont(font);
 		difficultyBar.setText(difficulty.getStringDifficulty());
 		this.getContentPane().add(difficultyBar);
-
-
 
 		//statusBar
 		statusBar = new JTextPane();
@@ -235,7 +233,7 @@ public class Board extends JFrame {
 	}
 	
 	private void applyGameSize() {
-		settingGameSize = new GameSize(0);		// 설정창과 연결하기		
+		settingGameSize = new GameSize(1);		// 설정창과 연결하기		
 		gameSize = settingGameSize.getGameSize();	
 		gameSizeType = settingGameSize.getGameSizeType(); 
 		frameSize = settingGameSize.getFrameSize();	
@@ -687,13 +685,6 @@ public class Board extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent e) {}
 
-	}
-
-	void PrintBoard (int [][] arr) {
-		for (int i=0; i< arr.length; i ++){
-			System.out.println("y: " + i + "|" + Arrays.toString(arr[i]));
-		}
-		System.out.println("-------------------------------------");
 	}
 }
 

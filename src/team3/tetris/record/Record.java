@@ -15,8 +15,6 @@ public class Record {
     public Record(String mode, String difficulty) throws IOException {
         this.mode = mode;
         this.difficulty = difficulty;
-        System.out.println(mode);
-        System.out.println(difficulty);
         this.fileURL = "../Tetris_Team3/records/" + mode + "/" + difficulty + ".txt";
     }
     //txt 기존 저장되어있던 레코드를 scoreBoard 넣는 함수
