@@ -40,33 +40,38 @@ public class Board extends JFrame {
 	public static final int TARGET_COUNT = 10;
 	public static final char BORDER_CHAR = '○';
 
-	protected int deletedLineCount = 0;
-	private boolean isPaused = false;
-	private Difficulty difficulty;
+	public Difficulty difficulty;
 	protected GameScore gameScore;
+	protected int deletedLineCount = 0;
+	protected int probability;
+	protected int gameSize;
+	protected int gameSizeType;
+	protected int frameSize;
+	protected int[][] board;
+	protected int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
+	protected double initInterval;
+	protected boolean isNormal;
+	protected boolean isPaused;
+
 	private JTextPane pane;
 	private JTextPane previewPane;
 	private JTextPane scorePane;
 	private JTextPane statusBar;
 	private JTextPane levelPane;
-	private JTextPane modePane;
 	private JTextPane difficultyBar;
+	private JTextPane gameModeBar;
 	private JTextPane background;
-	protected int[][] board;
-	protected int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
 	private int[][] previewBoard;
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
-	protected Block curr;
-	protected Block next;
+	private Block curr;
+	private Block next;
 	private String status;
 	
 	int x = 3; //Default Position.
 	int y = 0;
-	
-	protected int probability;
-	protected double initInterval; 
+
 	
 	public Board() {
 		super("Team 3 Tetris");
@@ -232,7 +237,7 @@ public class Board extends JFrame {
 		timer.stop();
 		Scoreboard sb = null;
 		try {
-			sb = new Scoreboard(Board.this);
+			sb = new Scoreboard(null,Board.this);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -548,7 +553,7 @@ public class Board extends JFrame {
 				timer.stop();
 				Scoreboard sb;
 				try {
-					sb = new Scoreboard(Board.this);
+					sb = new Scoreboard(gameScore, Board.this);
 					sb.setVisible(true);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

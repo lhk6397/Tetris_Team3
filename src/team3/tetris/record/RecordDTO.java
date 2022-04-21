@@ -5,16 +5,16 @@ import java.util.Date;
 
 public class RecordDTO {
     private String mode;
-    private String level;
+    private String difficulty;
     private String name;
     private int score;
     private String time;
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd");
 
     //DTO 생성자
-    public RecordDTO(String mode, String level, String name, int score, String time) {
+    public RecordDTO(String mode, String difficulty, String name, int score, String time) {
         this.mode = mode;
-        this.level = level;
+        this.difficulty = difficulty;
         this.name = name;
         this.score = score;
         this.time = time;
@@ -30,11 +30,11 @@ public class RecordDTO {
     }
 
     public String getLevel() {
-        return level;
+        return difficulty;
     }
 
     public void setLevel(String level) {
-        this.level = level;
+        this.difficulty = level;
     }
 
     public String getName() {

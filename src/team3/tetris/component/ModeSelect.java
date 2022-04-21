@@ -1,6 +1,7 @@
 package team3.tetris.component;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +13,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
@@ -24,113 +23,75 @@ import javax.swing.JFrame;
 
 public class ModeSelect extends JFrame implements ActionListener {
 	private KeyListener playerKeyListener;
-	JPanel pan;
+	Container con;
 	JLabel label;
-	JButton easy;
-	JButton normal;
-	JButton hard;
-	JButton ItemMode;
-	JButton scoreBoardReset;
-	JButton colorBlind;
-	JButton settingsReset;
-	JButton exit;
-	JButton curBtn;
-    
 	
+	JButton normalMode;
+	JButton itemMode;
+	JButton colorBlind;
+	JButton curBtn;
 	
 	public ModeSelect() {
 		super("ModeSelect");
 		setSize(350, 300);
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
-		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		addWindowFocusListener(new myWindowFocusListener());
 		playerKeyListener = new PlayerKeyListener();
 		
-		pan = new JPanel();
-		pan.setBackground(Color.BLACK);
-		pan.setLayout(null);
+		con = getContentPane();
+		con.setBackground(Color.BLACK);
+		con.setLayout(null);
 		
-		label = new JLabel("ModeSelect");
+		label = new JLabel("Mode Select");
 		label.setHorizontalAlignment(JLabel.CENTER);
+		label.setOpaque(true);
 		label.setForeground(Color.WHITE);
+		label.setBackground(Color.BLACK);
 		label.setFont(new Font("SansSerif", Font.BOLD, 20));
-
-		// easy button
-		easy = new JButton("EASY");
-		easy.addActionListener(this);
-		easy.addFocusListener(new MyFocusListener());
-		easy.addKeyListener(playerKeyListener);
-		easy.setBackground(Color.BLACK);
-		easy.setForeground(Color.WHITE);
 		
-		// normal button
-		normal = new JButton("NORMAL");
-		normal.addActionListener(this);
-		normal.addFocusListener(new MyFocusListener());
-		normal.addKeyListener(playerKeyListener);
-		normal.setBackground(Color.BLACK);
-		normal.setForeground(Color.WHITE);
+		// Normal button
+		normalMode = new JButton("Nomral Mode");
+		normalMode.addActionListener(this);
+		normalMode.addFocusListener(new MyFocusListener());
+		normalMode.addKeyListener(playerKeyListener);
+		normalMode.setBackground(Color.BLACK);
+		normalMode.setForeground(Color.WHITE);
 		
-		// hard button
-		hard = new JButton("HARD");
-		hard.addActionListener(this);
-		hard.addFocusListener(new MyFocusListener());
-		hard.addKeyListener(playerKeyListener);
-		hard.setBackground(Color.BLACK);
-		hard.setForeground(Color.WHITE);
 		
 		// ItemMode button
-		ItemMode = new JButton("ItemMode");
-		ItemMode.addActionListener(this);
-		ItemMode.addFocusListener(new MyFocusListener());
-		ItemMode.addKeyListener(playerKeyListener);
-		ItemMode.setBackground(Color.BLACK);
-		ItemMode.setForeground(Color.WHITE);
+		itemMode = new JButton("Item Mode");
+		itemMode.addActionListener(this);
+		itemMode.addFocusListener(new MyFocusListener());
+		itemMode.addKeyListener(playerKeyListener);
+		itemMode.setBackground(Color.BLACK);
+		itemMode.setForeground(Color.WHITE);
 		
-		// exit button
-		exit = new JButton("EXIT");
-		exit.addActionListener(this);
-		exit.setBackground(Color.BLACK);
-		exit.setForeground(Color.WHITE);
 		
-		label.setBounds(33, 0, 270, 30);
-		easy.setBounds(33, 30, 90, 30);
-		normal.setBounds(123, 30, 90, 30);
-		hard.setBounds(213, 30, 90, 30);
-		ItemMode.setBounds(33, 70, 270, 30);
-		exit.setBounds(33, 230, 270, 30);
+		label.setBounds(0, 0, 350, 50);
+		normalMode.setBounds(40, 80, 270, 50);
+		itemMode.setBounds(40, 160, 270, 50);
 		
-		pan.add(label);
-		pan.add(easy);
-		pan.add(normal);
-		pan.add(hard);
-		pan.add(ItemMode);
-		pan.add(exit);
-		
-		add(pan);
-		
-		easy.requestFocus();
-	
-
+		con.add(label);
+		con.add(normalMode);
+		con.add(itemMode);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == easy) {
-			new Board().setVisible(true);
+		if(e.getSource() == normalMode) {
+			Board board = new Board();
+			board.setVisible(true);
+			board.run();
+			dispose();
 		}
-		else if(e.getSource() == normal) {
-			new Board().setVisible(true);
-		}
-		else if(e.getSource() == hard) {
-			new Board().setVisible(true);
-		}
-		else if(e.getSource() == ItemMode) {
-			System.exit(0);
-		}
-		else if(e.getSource() == exit) {
-			System.exit(0);
+		else if(e.getSource() == itemMode) {
+			ItemBoard board = new ItemBoard();
+			board.setVisible(true);
+			board.run();
+			dispose();
 		}
 	}
 	
@@ -184,7 +145,7 @@ public class ModeSelect extends JFrame implements ActionListener {
 		@Override
 		public void windowGainedFocus(WindowEvent e) {
 			// TODO Auto-generated method stub
-			easy.requestFocus();
+			normalMode.requestFocus();
 		}
 
 		@Override
