@@ -5,28 +5,29 @@ import java.util.ArrayList;
 
 
 public class Record {
-    private String mode = "normal";
-    private String level = "easy";
+    private String mode;
+    private String difficulty;
     private ArrayList<RecordDTO> scoreBoard = new ArrayList<RecordDTO>();
     private int changedRank;
-    private String fileURL = "../Tetris_Team3/records/" + mode + "/" + level + ".txt";
+    private String fileURL;
 
     
-    public Record(String mode, String level) throws IOException {
+    public Record(String mode, String difficulty) throws IOException {
         this.mode = mode;
-        this.level = level;
+        this.difficulty = difficulty;
+        System.out.println(mode);
+        System.out.println(difficulty);
+        this.fileURL = "../Tetris_Team3/records/" + mode + "/" + difficulty + ".txt";
     }
     //txt 기존 저장되어있던 레코드를 scoreBoard 넣는 함수
     public ArrayList<RecordDTO> fetchScoreBoard() throws IOException {
         //스코어 보드 가져오기
-        BufferedReader reader = new BufferedReader(
-                new FileReader(fileURL)
-        );
+        BufferedReader reader = new BufferedReader(new FileReader(fileURL));
         String str;
         String[] line;
         while ((str = reader.readLine()) != null) {
             line = str.split(" ");
-            RecordDTO records = new RecordDTO(mode, level, line[0], Integer.parseInt(line[1]), line[2]);
+            RecordDTO records = new RecordDTO(mode, difficulty, line[0], Integer.parseInt(line[1]), line[2]);
             scoreBoard.add(records);
         }
         return scoreBoard;

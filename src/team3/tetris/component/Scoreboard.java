@@ -20,38 +20,26 @@ import javax.swing.border.CompoundBorder;
  */
 
 public class Scoreboard extends JFrame{
-	private boolean isSubmitted = false;
+	private boolean isSubmitted;
 	Container con;
 	JLabel label;
 	ScoreTable scoretable;
 	InputPanel inputPanel;
 	ExitPanel exitPanel;
 	
+	GameScore gameScore;
 	Board parent;
-	String mode = "normal";
-	String level = "easy";
-
-	public void checkSubmission(boolean isSubmitted, String nameT) throws IOException {
-		this.isSubmitted = isSubmitted;
-		if(isSubmitted) {
-			con.remove(inputPanel);
-			con.add(exitPanel);
-			RecordDTO newRecord = new RecordDTO(mode, level, nameT, 62, null );
-			newRecord.setTime();
-			scoretable.updateScoreTable(newRecord);
-			setVisible(false);
-			setVisible(true);
-		} else {
-			if(parent != null) {
-				parent.dispose();
-			}
-			dispose();
-		}
-	}
+	String mode;
+	String difficulty;
 	
-	public Scoreboard(Board... parent) throws IOException {
+	public Scoreboard(GameScore gameScore, Board parent) throws IOException {
 		super("ScoreBoard");
-		this.parent = parent.length > 0 ? parent[0] : null;
+		this.isSubmitted = false;
+		this.gameScore = gameScore;
+		this.parent = parent;
+		this.mode = parent.isNormal ? "normal" : "item";
+		this.difficulty = parent.difficulty.getStringDifficulty();
+		
 		setSize(515, 500);
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,7 +59,7 @@ public class Scoreboard extends JFrame{
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setForeground(Color.WHITE);
 		
-		scoretable = new ScoreTable(mode, level);
+		scoretable = new ScoreTable(mode, difficulty);
 		inputPanel = new InputPanel(this);
 		exitPanel = new ExitPanel(this.parent, this);
 		
@@ -86,6 +74,24 @@ public class Scoreboard extends JFrame{
         con.add(label);
         con.add(scoretable);
         con.add(inputPanel);
+	}
+
+	public void checkSubmission(boolean isSubmitted, String nameT) throws IOException {
+		this.isSubmitted = isSubmitted;
+		if(isSubmitted) {
+			con.remove(inputPanel);
+			con.add(exitPanel);
+			RecordDTO newRecord = new RecordDTO(mode, difficulty, nameT, gameScore.getScore(), null );
+			newRecord.setTime();
+			scoretable.updateScoreTable(newRecord);
+			setVisible(false);
+			setVisible(true);
+		} else {
+			if(parent != null) {
+				parent.dispose();
+			}
+			dispose();
+		}
 	}
 	
 	public class myWindowFocusListener implements WindowFocusListener {

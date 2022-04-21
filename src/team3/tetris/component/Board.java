@@ -39,10 +39,16 @@ public class Board extends JFrame {
 	public static final int TARGET_COUNT = 10;
 	public static final char BORDER_CHAR = '○';
 
-	protected int deletedLineCount = 0;
-	private boolean isPaused = false;
-	private Difficulty difficulty;
+	public Difficulty difficulty;
 	protected GameScore gameScore; 
+	protected int deletedLineCount = 0;
+	protected int[][] board;
+	protected int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
+	protected int probability;
+	protected double initInterval; 
+	protected boolean isNormal;
+	protected boolean isPaused;
+	
 	private JTextPane pane;
 	private JTextPane previewPane;
 	private JTextPane scorePane;
@@ -50,8 +56,6 @@ public class Board extends JFrame {
 	private JTextPane levelPane;
 	private JTextPane difficultyBar;
 	private JTextPane background;
-	protected int[][] board;
-	protected int[][] inactiveBlock; // 굳어진 블럭들에 대한 2차원 배열
 	private int[][] previewBoard;
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
@@ -63,11 +67,10 @@ public class Board extends JFrame {
 	int x = 3; //Default Position.
 	int y = 0;
 	
-	protected int probability;
-	protected double initInterval; 
-	
 	public Board() {
 		super("Team 3 Tetris");
+		this.isNormal = true;
+		this.isPaused = false;
 		applyDifficulty(); // 난이도 설정 불러오기 
 
 		// Initialize board for the game.
@@ -212,7 +215,10 @@ public class Board extends JFrame {
 	}
 	
 	private void pause() {
-
+		/*
+		 * 1. P와 ESC를 제외한 나머지의 키 입력을 제한
+		 * 
+		 */
         isPaused = !isPaused;
 
         if (isPaused) {
@@ -228,7 +234,7 @@ public class Board extends JFrame {
 		timer.stop();
 		Scoreboard sb = null;
 		try {
-			sb = new Scoreboard(Board.this);
+			sb = new Scoreboard(gameScore, Board.this);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -255,8 +261,6 @@ public class Board extends JFrame {
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 //		StyleConstants.setForeground(styles, curr.getColor());
-		
-		gameOverCheck();
 		
 		for(int j=0; j<curr.height(); ++j) {
 			int rows = y+j == 0 ? 0 : y+j-1; // y+j가 0이면 rows = 0 아니면 rows = y+j-1
@@ -455,9 +459,6 @@ public class Board extends JFrame {
 	}
 
 	private void hardDrop() {
-		// inactiveBlock == 1일 때까지 y를 1씩 증가해가면서 
-		// inactiveBlock[][x]에 현재 블럭 모양 대입
-		// 내려간 line 개수만큼 addScore();
 		int lineCount = 0;
 		eraseCurr();
 		for(; y < HEIGHT; ++y) {
@@ -473,8 +474,6 @@ public class Board extends JFrame {
 				return;
 			}
 		}
-		
-		
 		// hardDrop 후 방향키 입력 시 분신술? drawBoard()
 		
 	}
@@ -504,6 +503,7 @@ public class Board extends JFrame {
 			x = 3;
 			y = 0;
 			placeBlock();
+			gameOverCheck();
 		}
 	} 
 	
@@ -533,7 +533,7 @@ public class Board extends JFrame {
 				timer.stop();
 				Scoreboard sb;
 				try {
-					sb = new Scoreboard(Board.this);
+					sb = new Scoreboard(gameScore, Board.this);
 					sb.setVisible(true);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

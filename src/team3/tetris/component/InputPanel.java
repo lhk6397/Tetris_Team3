@@ -31,6 +31,8 @@ public class InputPanel extends JPanel implements ActionListener {
 	JButton noBtn;
 	JButton curBtn;
 	
+	GameScore gameScore;
+	
 	public InputPanel(Scoreboard parent){
 		this.parent = parent;
 		setBackground(Color.BLACK);

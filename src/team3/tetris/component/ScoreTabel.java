@@ -23,11 +23,11 @@ class ScoreTable extends JPanel{
 	JLabel modeLabel;
 	Record recordTable;
 	String mode = "normal";
-	String level = "esay";
+	String difficulty;
 
-	public ScoreTable(String mode, String level) throws IOException {
+	public ScoreTable(String mode, String difficulty) throws IOException {
 		this.mode = mode;
-		this.level = level;
+		this.difficulty = difficulty;
 
 		setBackground(Color.BLACK);
 		
@@ -35,17 +35,17 @@ class ScoreTable extends JPanel{
 		scoreLabel.setFont(new Font("SansSerif", Font.BOLD, 17));
 		scoreLabel.setForeground(Color.WHITE);
 
-		modeLabel = new JLabel("MODE : "+mode);
+		modeLabel = new JLabel("MODE : "+ mode);
 		modeLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
 		modeLabel.setForeground(Color.WHITE);
 
-		levelLabel = new JLabel("LEVEL : "+level);
+		levelLabel = new JLabel("LEVEL : "+ difficulty);
 		levelLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
 		levelLabel.setForeground(Color.WHITE);
 		// JTable
 
 		//기존 scoreBoard 띄우기
-		recordTable = new Record(mode, level);
+		recordTable = new Record(mode, difficulty);
 		recordTable.fetchScoreBoard();
 		//header가 안뜨는 오류가 있음
 		String header[] = {"순위", "이름", "점수", "시간"};
@@ -83,10 +83,6 @@ class ScoreTable extends JPanel{
 			}
 		};
 		add(new_scoreBoard);
-
-
-
-//		add(new_scoreBoard);
 	}
 }
 

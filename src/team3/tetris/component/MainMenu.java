@@ -39,6 +39,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		setSize(350, 300);
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		addWindowFocusListener(new myWindowFocusListener());
 		playerKeyListener = new PlayerKeyListener();
@@ -104,10 +105,8 @@ public class MainMenu extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == start) {
-			//ItemBoard, Board 둘 중 하나
-			ItemBoard board = new ItemBoard();
-			board.setVisible(true);
-			board.run();
+			ModeSelect selector = new ModeSelect();
+			selector.setVisible(true);
 			dispose();
 		}
 		else if(e.getSource() == settings) {
@@ -116,7 +115,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		}
 		else if(e.getSource() == scoreBoard) {
 			try {
-				new Scoreboard().setVisible(true);
+				new ScoreboardFromMain(this).setVisible(true);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
