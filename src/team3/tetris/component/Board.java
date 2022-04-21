@@ -1,6 +1,7 @@
 package team3.tetris.component;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -89,7 +90,7 @@ public class Board extends JFrame {
 	}
 
 	//timer 실행 및 placeBlock 실행
-	protected void run() {
+	public void run() {
 		timer = new Timer((int) (initInterval), new ActionListener() { // initInterval 마다 actionPerformed
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -124,31 +125,35 @@ public class Board extends JFrame {
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
 				BorderFactory.createLineBorder(Color.DARK_GRAY, frameSize));
-		
+
+	
+		Font font = new Font("Sans Serif", Font.PLAIN, (int)(gameSize*1.5));
+
 		//MainBoard
 		pane = new JTextPane();
 		pane.setEditable(false);
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
-		pane.setBounds(gameSize*0, gameSize*0, gameSize*29, gameSize*49);
+		pane.setBounds(gameSize*0, gameSize*0, gameSize*20, gameSize*49);
 		this.getContentPane().add(pane);
-
+													//20
 		//PreviewBoard
 		previewPane = new JTextPane();
 		previewPane.setEditable(false);
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border);
-		previewPane.setBounds(gameSize*31, gameSize*0, gameSize*13, gameSize*13);  
-		this.getContentPane().add(previewPane);
-
+		previewPane.setBounds(gameSize*22, gameSize*0, gameSize*13, gameSize*13);  
+		this.getContentPane().add(previewPane); 
+								//29, 31
 		//ScoreBoard
 		scorePane = new JTextPane();
 		scorePane.setEditable(false);
 		scorePane.setBorder(border);
 		TitledBorder border2 = BorderFactory.createTitledBorder("SCORE");
-		scorePane.setBounds(gameSize*31, gameSize*13, gameSize*13, gameSize*5);
+		scorePane.setBounds(gameSize*22, gameSize*13, gameSize*13, gameSize*5);
 		scorePane.setBorder(border2);
-		scorePane.setText("Score : "+ gameScore.getScore());
+		scorePane.setFont(font);
+		scorePane.setText("Score:"+ gameScore.getScore());
 		this.getContentPane().add(scorePane);
 
 		//LevelBoard
@@ -156,8 +161,9 @@ public class Board extends JFrame {
 		levelPane.setEditable(false);
 		levelPane.setBorder(border);
 		TitledBorder border3 = BorderFactory.createTitledBorder("LEVEL");
-		levelPane.setBounds(gameSize*31, gameSize*28, gameSize*13, gameSize*5);
+		levelPane.setBounds(gameSize*22, gameSize*28, gameSize*13, gameSize*5);
 		levelPane.setBorder(border3);
+		levelPane.setFont(font);
 		levelPane.setText("Level : "+ gameScore.getLevel());
 		this.getContentPane().add(levelPane);
 		
@@ -166,19 +172,20 @@ public class Board extends JFrame {
 		gameModeBar.setEditable(false);
 		gameModeBar.setBorder(border);
 		TitledBorder border4 = BorderFactory.createTitledBorder("GameMode");
-		gameModeBar.setBounds(gameSize*31, gameSize*33,gameSize*13, gameSize*5);
+		gameModeBar.setBounds(gameSize*22, gameSize*33,gameSize*13, gameSize*5);
 		gameModeBar.setBorder(border4);
-		String txt = isNormal ? "Normal Mode" : "Item Mode";
-		gameModeBar.setText(txt);	
+		gameModeBar.setFont(font);
+		gameModeBar.setText("GameMode");	
 		this.getContentPane().add(gameModeBar);
 		
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
 		TitledBorder border5 = BorderFactory.createTitledBorder("DIFFICULTY");
-		difficultyBar.setBounds(gameSize*31, gameSize*38, gameSize*13, gameSize*5);
-		difficultyBar.setBorder(border5); 
-		difficultyBar.setText(difficulty.getStringDifficulty());		
+		difficultyBar.setBounds(gameSize*22, gameSize*38, gameSize*13, gameSize*5);
+		difficultyBar.setBorder(border5);
+		difficultyBar.setFont(font);
+		difficultyBar.setText(difficulty.getStringDifficulty());
 		this.getContentPane().add(difficultyBar);
 
 
@@ -187,22 +194,23 @@ public class Board extends JFrame {
 		statusBar = new JTextPane();
 		statusBar.setEditable(false);
 		TitledBorder border6 = BorderFactory.createTitledBorder("STATUS");
-		statusBar.setBounds(gameSize*31, gameSize*43, gameSize*13, gameSize*5);
+		statusBar.setBounds(gameSize*22, gameSize*43, gameSize*13, gameSize*5);
 		statusBar.setBorder(border6);
+		statusBar.setFont(font);
 		statusBar.setText("Playing!");
 		this.getContentPane().add(statusBar);
-
 
 		//Background
 		background = new JTextPane();
 		background.setBackground(Color.WHITE);
 		this.getContentPane().add(background);
 
-
 		//Document default style.
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, gameSize*2);
-		StyleConstants.setFontFamily(styleSet, "MS GOTHIC");
+		StyleConstants.setFontFamily(styleSet, "Britannic Bold");
+		
+		// Britannic Bold
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
@@ -210,7 +218,7 @@ public class Board extends JFrame {
 
 	protected Block getRandomBlock(int num, int probability) {
 		Random rnd = new Random(System.currentTimeMillis()*num); // Generate Random Number. // num : block과 previewBlock 구분을 위해 소수 곱하기
-		int block = rnd.nextInt(probability);
+		int block = rnd.nextInt(probability);  
 
 		if(block < 10) return new OBlock();
 		else if (block <20) return new JBlock();
@@ -227,14 +235,14 @@ public class Board extends JFrame {
 		probability = difficulty.getProbability();
 	}
 	
-	protected void applyGameSize() {
-		settingGameSize = new GameSize(1);		// 설정창과 연결하기		
+	private void applyGameSize() {
+		settingGameSize = new GameSize(0);		// 설정창과 연결하기		
 		gameSize = settingGameSize.getGameSize();	
 		gameSizeType = settingGameSize.getGameSizeType(); 
 		frameSize = settingGameSize.getFrameSize();	
 	}
-	
-	protected void levelUp() {
+
+	public void levelUp() {
 		gameScore.levelUp();
 		initInterval = difficulty.getSpeed();
 		timer.setDelay((int)initInterval);
@@ -597,7 +605,7 @@ public class Board extends JFrame {
 					sb.append("L");
 				} else {
 					sb.append("  ");
-				}
+				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
 			}
 			sb.append(BORDER_CHAR); // 오른쪽 벽
 			sb.append("\n");
