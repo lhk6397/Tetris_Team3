@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -42,12 +43,13 @@ public class Board extends JFrame {
 	protected int deletedLineCount = 0;
 	private boolean isPaused = false;
 	private Difficulty difficulty;
-	protected GameScore gameScore; 
+	protected GameScore gameScore;
 	private JTextPane pane;
 	private JTextPane previewPane;
 	private JTextPane scorePane;
 	private JTextPane statusBar;
 	private JTextPane levelPane;
+	private JTextPane modePane;
 	private JTextPane difficultyBar;
 	private JTextPane background;
 	protected int[][] board;
@@ -56,8 +58,8 @@ public class Board extends JFrame {
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
-	private Block curr;
-	private Block next;
+	protected Block curr;
+	protected Block next;
 	private String status;
 	
 	int x = 3; //Default Position.
@@ -119,7 +121,7 @@ public class Board extends JFrame {
 		pane.setEditable(false);
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
-		pane.setBounds(0, 0, 260, 630);
+		pane.setBounds(0, 0, 300, 630);
 		this.getContentPane().add(pane);
 
 		//PreviewBoard
@@ -127,7 +129,7 @@ public class Board extends JFrame {
 		previewPane.setEditable(false);
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border);
-		previewPane.setBounds(280, 0, 130, 130);
+		previewPane.setBounds(280, 0, 150, 130);
 		this.getContentPane().add(previewPane);
 
 		//ScoreBoard
@@ -158,6 +160,8 @@ public class Board extends JFrame {
 		difficultyBar.setBorder(border4); 
 		difficultyBar.setText(difficulty.getStringDifficulty());		
 		this.getContentPane().add(difficultyBar);
+
+
 
 		//statusBar
 		statusBar = new JTextPane();
@@ -251,7 +255,7 @@ public class Board extends JFrame {
 		
 	}
 	
-	private void placeBlock() { // 현재 블럭의 shape을 board 배열에 대입
+	protected void placeBlock() { // 현재 블럭의 shape을 board 배열에 대입
 		StyledDocument doc = pane.getStyledDocument();
 		SimpleAttributeSet styles = new SimpleAttributeSet();
 //		StyleConstants.setForeground(styles, curr.getColor());
@@ -274,7 +278,7 @@ public class Board extends JFrame {
 		placePreBlock();
 	}
 	
-	private void inactivateBlock() {
+	protected void inactivateBlock() {
 		for(int j = 0; j < curr.height(); ++j) {
 			for(int i = 0; i < curr.width(); ++i) {
 				if(inactiveBlock[y+j][x+i] >= 1) {
@@ -289,7 +293,7 @@ public class Board extends JFrame {
         scorePane.setText("Score : "+ gameScore.getScore());
     }
 	
-	private void eraseCurr() { // Erase current block.
+	protected void eraseCurr() { // Erase current block.
 		for(int i=x; i<x+curr.width(); i++) {
 			for(int j=y; j<y+curr.height(); j++) {
 				if(inactiveBlock[j][i] == 1) continue;
@@ -355,30 +359,41 @@ public class Board extends JFrame {
 		}
 		return true;
 	}
-	
+
+	//이동이 가능하면 true 이동이 불가하면 false
 	protected boolean checkBottom() {
+		if (checkFloor()) return false;
+		return checkOtherBlockUnder();
+	}
+
+	//땅에 닿았는지 검사 땅에 닿으면 true, 땅에 안닿으면 false
+	protected boolean checkFloor() {
+		int h = curr.height();
+		if (y + h >=HEIGHT) {
+			return true;
+		} else return false;
+	}
+	//다른 블럭과 닿았는지 검사 다른 블럭과 닿으면 false, 아니면 true
+	protected boolean checkOtherBlockUnder() {
+		if (checkFloor()) return false;
+
 		int w = curr.width();
 		int h = curr.height();
-		//블럭이 땅에 닿았는지 검사
-		if (y + h >= HEIGHT) {
-			return false;
-		}
-		
 		int[][] currShape = curr.getBlockShape();
-		
-		//블럭의 각 요소가 다른블럭과 닿았는지 체크
+
 		for(int i = 0; i < w; ++i) {
-            for(int j = h-1; j >= 0; --j) {
-                if(currShape[j][i] > 0) {
-                    if(inactiveBlock[y+j+1][x+i] > 0) {
-                    	return false;
-                    }
-                }
-            }
-        }
+			for(int j = h-1; j >= 0; --j) {
+				if(currShape[j][i] > 0) {
+					if(inactiveBlock[y+j+1][x+i] > 0) {
+						return false;
+					}
+				}
+			}
+		}
 		return true;
 	}
-	
+
+
 	protected boolean checkRight() {
 		int w = curr.width();
 		int h = curr.height();
@@ -556,8 +571,6 @@ public class Board extends JFrame {
 					sb.append("■");
 				} else if(board[i][j] == 2){
 					sb.append("L");
-				} else if(board[i][j] == 3) {
-					sb.append("C");
 				} else {
 					sb.append("   ");
 				} // 아이템에 대한 L표시가 이루어져야함 근데 표시 오류가 있음
@@ -582,12 +595,10 @@ public class Board extends JFrame {
 			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
 				if(previewBoard[i][j] == 1) {
 					sb2.append("■");
-				} else if(previewBoard[i][j] == 2){
+				} else if(board[i][j] == 2){
 					sb2.append("L");
-				} else if(previewBoard[i][j] == 3) {
-					sb2.append("C");
 				} else {
-					sb2.append("   ");
+					sb2.append("  ");
 				}
 			}
 			sb2.append("\n");
@@ -602,7 +613,6 @@ public class Board extends JFrame {
 	public void reset() {
 		this.board = new int[HEIGHT][WIDTH];
 		this.previewBoard = new int [PREVIEWHEIGHT][PREVIEWWIDTH];
-		this.inactiveBlock = new int[HEIGHT][WIDTH];
 	}
 
 	public class PlayerKeyListener implements KeyListener { // key 입력
@@ -645,6 +655,13 @@ public class Board extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent e) {}
 
+	}
+
+	void PrintBoard (int [][] arr) {
+		for (int i=0; i< arr.length; i ++){
+			System.out.println("y: " + i + "|" + Arrays.toString(arr[i]));
+		}
+		System.out.println("-------------------------------------");
 	}
 }
 

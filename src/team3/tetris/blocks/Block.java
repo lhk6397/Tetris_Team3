@@ -6,7 +6,16 @@ public abstract class Block {
 		
 	protected int[][] shape;
 	protected Color color;
-	
+	protected int id;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public Block() {
 		shape = new int[][]{ 
 				{1, 1}, 

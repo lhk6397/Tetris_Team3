@@ -8,6 +8,7 @@ public class GameScore {
 	private int level;
     private int score;
     private int addition; // 더해지는 점수
+	private String mode;
 
     public GameScore(Difficulty difficulty) 
     {
@@ -47,6 +48,12 @@ public class GameScore {
     	difficulty.setSpeed();
     	setAddition();
     }
-    
 
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
 }

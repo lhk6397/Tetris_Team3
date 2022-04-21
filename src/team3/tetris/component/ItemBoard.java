@@ -2,9 +2,13 @@ package team3.tetris.component;
 
 import team3.tetris.blocks.*;
 
+import javax.swing.*;
+import java.util.Arrays;
 import java.util.Random;
 
 public class ItemBoard extends Board {
+    private JTextPane modePane;
+
     public int count = 0;
     public boolean isFieldClear = false;
     
@@ -16,17 +20,16 @@ public class ItemBoard extends Board {
     @Override
     protected Block getRandomBlock(int num, int blocks) {
         count++;
-        if (count % 3 == 0) {
+        if (count % 5 == 0) {
             Random rnd = new Random(System.currentTimeMillis()*11);
-            int number = rnd.nextInt(2);
+            int number = rnd.nextInt(3);
             switch (number) {
                 case 0:
                     return createItemLineClear(super.getRandomBlock(11, probability));
-                case 1: //다른 아이템 구상
+                case 1:
+                    return createItemFieldClear(super.getRandomBlock(11, probability));
                 case 2:
                     return createWeightBlock();
-                case 3:
-                	return createItemFieldClear(super.getRandomBlock(11, probability));
             }
         } return super.getRandomBlock(11, probability);
     }
@@ -72,7 +75,8 @@ public class ItemBoard extends Board {
     	reset();
     	drawBoard();
     }
-    // 해결과졔: 2111113111와 같이 아이템이 중첩되어 있는 라인의 경우 어떻게?
+
+    // 해결과졔: 2111113111와 같이 아이템이 중첩되어 있는 라인의 경우 어떻게? FieldClear로 가시죳
     @Override
  	protected void lineClear() {
  		int combo = 0; // 붙어서 삭제 되는 line 수
@@ -147,11 +151,74 @@ public class ItemBoard extends Board {
 
     //무게추 블럭 생성함수
     private Block createWeightBlock() {
-        WeighBlock wbk = new WeighBlock();
+        WeightBlock wbk = new WeightBlock();
         return wbk;
     }
-    
-  //FieldClear block 생성 함수
+
+    //WeightBlock에 대한 구현
+    private void eraseByWeightBlock() {
+        int w = curr.width();
+        int h = curr.height();
+
+        for (int i=0 ; i<w;i++){
+            inactiveBlock[y+h][x+i] = 0;
+            board[y+h][x+i]=0;
+        }
+    }
+
+    //WeightBlock 함수
+    private void moveDownWeightBlock() {
+        if (!checkFloor()) {
+            eraseCurr();
+            updateScore();
+            if (!checkOtherBlockUnder()) {
+                eraseByWeightBlock();
+            }
+            y++;
+            gameScore.addScore(); // score 증가
+            placeBlock();
+        } else {
+            // inactiveBlock[][]에 블럭 모양 반영
+            inactivateBlock();
+            lineClear();
+            curr = next;
+            next = getRandomBlock(1, probability);
+            x = 3;
+            y = 0;
+            placeBlock();
+        }
+    }
+
+    //Weight 동작에 대한 구현
+    @Override
+    protected void moveDown() {
+        String itemName = curr.getClass().getSimpleName();
+        if(itemName.equals("WeightBlock")) moveDownWeightBlock();
+        else{
+            //아래로 이동
+            if(checkBottom()) {
+                eraseCurr();
+                y++;
+                gameScore.addScore(); // score 증가
+                updateScore();
+                placeBlock();
+            }
+            //고정
+            else {
+                // inactiveBlock[][]에 블럭 모양 반영
+                inactivateBlock();
+                lineClear();
+                curr = next;
+                next = getRandomBlock(1,probability);
+                x = 3;
+                y = 0;
+                placeBlock();
+            }
+        }
+    }
+
+
+    //FieldClear block 생성 함수
     private Block createItemFieldClear(Block block) {
         int n = block.width();
         int m = block.height();

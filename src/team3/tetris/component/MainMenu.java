@@ -106,6 +106,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		if(e.getSource() == start) {
 			//ItemBoard, Board 둘 중 하나
 			ItemBoard board = new ItemBoard();
+//			Board board = new Board();
 			board.setVisible(true);
 			board.run();
 			dispose();
