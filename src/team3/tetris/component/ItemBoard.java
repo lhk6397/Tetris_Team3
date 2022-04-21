@@ -10,7 +10,7 @@ public class ItemBoard extends Board {
     
     public ItemBoard() {
         super();
-        isNormal = false;
+        super.isNormal = false;
     }
 
 

@@ -30,8 +30,6 @@ public class ModeSelect extends JFrame implements ActionListener {
 	JButton itemMode;
 	JButton colorBlind;
 	JButton curBtn;
-    
-	
 	
 	public ModeSelect() {
 		super("ModeSelect");
@@ -55,7 +53,7 @@ public class ModeSelect extends JFrame implements ActionListener {
 		label.setFont(new Font("SansSerif", Font.BOLD, 20));
 		
 		// Normal button
-		normalMode = new JButton("Nomral");
+		normalMode = new JButton("Nomral Mode");
 		normalMode.addActionListener(this);
 		normalMode.addFocusListener(new MyFocusListener());
 		normalMode.addKeyListener(playerKeyListener);
@@ -64,7 +62,7 @@ public class ModeSelect extends JFrame implements ActionListener {
 		
 		
 		// ItemMode button
-		itemMode = new JButton("Item");
+		itemMode = new JButton("Item Mode");
 		itemMode.addActionListener(this);
 		itemMode.addFocusListener(new MyFocusListener());
 		itemMode.addKeyListener(playerKeyListener);

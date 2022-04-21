@@ -77,6 +77,7 @@ public class Board extends JFrame {
 		super("Team 3 Tetris");
 		this.isNormal = true;
 		this.isPaused = false;
+		System.out.println(isNormal);
 		applyDifficulty(); // 난이도 설정 불러오기 
 		applyGameSize();
 		// Initialize board for the game.
@@ -85,10 +86,6 @@ public class Board extends JFrame {
 		inactiveBlock = new int[HEIGHT][WIDTH];
 		previewBoard = new int[PREVIEWHEIGHT][PREVIEWWIDTH];
 		playerKeyListener = new PlayerKeyListener();
-		addKeyListener(playerKeyListener);
-		setFocusable(true);
-		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
-		setDisplayAndLayout();
 
 	}
 
@@ -104,6 +101,11 @@ public class Board extends JFrame {
 			}
 		});
 
+		addKeyListener(playerKeyListener);
+		setFocusable(true);
+		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
+		setDisplayAndLayout();
+		
 		// Create block and draw.
 		curr = getRandomBlock(11, probability);
 		next = getRandomBlock(1, probability);
@@ -167,7 +169,8 @@ public class Board extends JFrame {
 		TitledBorder border4 = BorderFactory.createTitledBorder("GameMode");
 		gameModeBar.setBounds(gameSize*31, gameSize*33,gameSize*13, gameSize*5);
 		gameModeBar.setBorder(border4);
-		gameModeBar.setText("GameMode");	
+		String txt = isNormal ? "Normal Mode" : "Item Mode";
+		gameModeBar.setText(txt);	
 		this.getContentPane().add(gameModeBar);
 		
 		//difficultyBar
