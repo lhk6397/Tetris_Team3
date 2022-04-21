@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -174,7 +173,8 @@ public class Board extends JFrame {
 		gameModeBar.setBounds(gameSize*22, gameSize*33,gameSize*13, gameSize*5);
 		gameModeBar.setBorder(border4);
 		gameModeBar.setFont(font);
-		gameModeBar.setText("GameMode");	
+		String txt = isNormal ? "Normal Mode" : "Item Mode";
+		gameModeBar.setText(txt);
 		this.getContentPane().add(gameModeBar);
 		
 		//difficultyBar
@@ -542,12 +542,7 @@ public class Board extends JFrame {
 			// inactiveBlock[][]에 블럭 모양 반영
 			inactivateBlock();
 			lineClearCheck();
-			curr = next;
-			next = getRandomBlock(1,probability);
-			x = 3;
-			y = 0;
-			placeBlock();
-			gameOverCheck();
+			spawnBlock();
 		}
 	} 
 	
@@ -569,6 +564,15 @@ public class Board extends JFrame {
 		} else {
 			return;
 		}
+	}
+	
+	public void spawnBlock() {
+		curr = next;
+		next = getRandomBlock(1,probability);
+		x = 3;
+		y = 0;
+		gameOverCheck();
+		placeBlock();
 	}
 	
 	public void gameOverCheck() {

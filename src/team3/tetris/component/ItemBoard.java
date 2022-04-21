@@ -25,62 +25,8 @@ public class ItemBoard extends Board {
         super();
         super.isNormal = false;
     }
-
-
-    @Override
-    protected Block getRandomBlock(int num, int blocks) {
-        count++;
-        if (count % 3 == 0) {
-            Random rnd = new Random(System.currentTimeMillis()*num);
-            int number = rnd.nextInt(1);
-            switch (number) {
-                case 0:
-                	return createWeightBlock();
-                case 1:
-                	return createItemLineClear(super.getRandomBlock(num, probability));
-                case 2:
-                	return createItemFieldClear(super.getRandomBlock(num, probability));
-                case 3:
-                	return createItemFeverTime(super.getRandomBlock(num, probability));
-                case 4:
-                	return createItemBonusScore(super.getRandomBlock(num, probability));
-            }
-        } return super.getRandomBlock(11, probability);
-    }
-
-    @Override
-    protected boolean checkLineFull(int lineNum) {
-		for(int i = 0; i < WIDTH; ++i) {
-			if(inactiveBlock[lineNum][i] <= 0) {
-				isFieldClear = false;
-				isFeverTime = false;
-				isBonusScore = false;
-				return false;
-			}
-			
-			int element = inactiveBlock[lineNum][i];
-			if(element >= 2) {
-				switch(element) {
-				case 2:
-					clearCurrentLine(lineNum);
-					break;
-				case 3:
-					isFieldClear = true;
-					break;
-				case 4:
-					isFeverTime = true;
-					break;
-				case 5:
-					isBonusScore = true;
-				default:
-					break;
-				}
-						
-			}
-		}
-		return true;
-	}
-  
+    
+    // Line Clear Item
     private void clearCurrentLine(int lineNum) {
     	// inactiveBlock[][] 한 칸씩 내려오기
 		for(int rows = lineNum - 1; rows >= 0; --rows) {
@@ -103,6 +49,7 @@ public class ItemBoard extends Board {
     	
     }
     
+    // Field Clear Item
     private void fieldClear() {
     	int elementCount = 0;
     	for(int j = HEIGHT -1; j > 0; --j) {
@@ -122,6 +69,7 @@ public class ItemBoard extends Board {
     	drawBoard();
     }
     
+    // FeverTime Item
     public void setFeverTime() {
     	gameScore.setFeverAddtion();
     	Timer FeverTimer = new Timer(10000, new ActionListener() { // initInterval 마다 actionPerformed
@@ -134,78 +82,12 @@ public class ItemBoard extends Board {
     	FeverTimer.setRepeats(false); // Only Execute once
     	FeverTimer.start();
     }
-    
+    // BonusScore Item
     private void addBonusScore() {
     	gameScore.addBonusScore(bonus);
     	isBonusScore = false;
     }
     
-    @Override
- 	protected void lineClearCheck() {
- 		int combo = 0; // 붙어서 삭제 되는 line 수
- 		for(int j = HEIGHT - 1; j >0; --j) {
- 			if(!checkLineFull(j)) {
- 				continue;
- 			}
- 			
- 			while(checkLineFull(j)) {
- 				if(isFieldClear) {
- 					fieldClear();
- 					return;
- 				}
- 				
- 				if(isFeverTime) {
- 					setFeverTime();
- 				}
- 				
- 				if(isBonusScore) {
- 					addBonusScore();
- 				}
- 				
- 				combo++; // 붙어서 삭제되는 줄의 수
- 				
- 				clearCurrentLine(j);
-
-				while(combo > 0) {
-					deletedLineCount++;
-					combo--;
-					if(deletedLineCount % TARGET_COUNT == 0) {
-						levelUp();
-					}
-				}
-				updateScore();
-			}
- 			drawBoard();
- 		}
- 	}
-    
-    
-    //LineClear block 생성 함수
-    private Block createItemLineClear(Block block) {
-        int n = block.width();
-        int m = block.height();
-        Random rnd = new Random(System.currentTimeMillis()*11);
-        int num = rnd.nextInt(4);
-        int cnt = 0;
-        int[][] LCblock = new int[n][m];
-
-        for (int i=0; i<n;i++) {
-            for (int j=0;j<m;j++) {
-                if (block.getShape(i,j) == 0) {
-                    LCblock[i][j] = 0;
-                    continue;
-                }
-                cnt ++;
-                if (cnt == num) {
-                    LCblock[i][j] = 2;
-                    continue;
-                } else LCblock[i][j] = 1;
-            }
-        }
-        block.setShape(LCblock);
-        return block;
-    }
-
     //무게추 블럭 생성함수
     private Block createWeightBlock() {
         WeightBlock wbk = new WeightBlock();
@@ -223,7 +105,7 @@ public class ItemBoard extends Board {
         }
     }
 
-    
+    //Weight 동작에 대한 hardDrop 구현
     private void hardDropByWeightBlock() {
     	int w = curr.width();
         int st = y;
@@ -268,119 +150,153 @@ public class ItemBoard extends Board {
             // inactiveBlock[][]에 블럭 모양 반영
             inactivateBlock();
             lineClearCheck();
-            curr = next;
-            next = getRandomBlock(1, probability);
-            x = 3;
-            y = 0;
-            placeBlock();
-            gameOverCheck();
+            spawnBlock();
         }
     }
 
-    //Weight 동작에 대한 구현
+
+    // Item Block 생성 함수
+    private Block createItemBlock(int itemType, Block block) {
+    	int n = block.width();
+        int m = block.height();
+        Random rnd = new Random(System.currentTimeMillis()*11);
+        int num = rnd.nextInt(4);
+        int cnt = 0;
+        int[][] itemBlock = new int[n][m];
+        
+        for (int i=0; i<n;i++) {
+            for (int j=0;j<m;j++) {
+                if (block.getShape(i,j) == 0) {
+                	itemBlock[i][j] = 0;
+                    continue;
+                } 
+                cnt ++;
+                if (cnt == num) {
+                	itemBlock[i][j] = itemType;
+                    continue;
+                } else itemBlock[i][j] = 1;
+            }
+        }
+        block.setShape(itemBlock);
+        return block;
+    }
+    
+    @Override
+    protected Block getRandomBlock(int num, int blocks) {
+        count++;
+        if (count % 3 == 0) {
+            Random rnd = new Random(System.currentTimeMillis()*num);
+            int number = rnd.nextInt(2, 3);
+            switch (number) {
+                case 1:
+                	return createWeightBlock();
+                case 2:
+                	return createItemBlock(number, super.getRandomBlock(num, probability));
+                case 3:
+                	return createItemBlock(number, super.getRandomBlock(num, probability));
+                case 4:
+                	return createItemBlock(number, super.getRandomBlock(num, probability));
+                case 5:
+                	return createItemBlock(number, super.getRandomBlock(num, probability));
+            }
+        } return super.getRandomBlock(11, probability);
+    }
+
+    @Override
+    protected boolean checkLineFull(int lineNum) {
+		for(int i = 0; i < WIDTH; ++i) {
+			if(inactiveBlock[lineNum][i] <= 0) {
+				isFieldClear = false;
+				isFeverTime = false;
+				isBonusScore = false;
+				return false;
+			}
+			
+			int element = inactiveBlock[lineNum][i];
+			if(element >= 2) {
+				switch(element) {
+				case 2:
+					clearCurrentLine(lineNum);
+					break;
+				case 3:
+					isFieldClear = true;
+					break;
+				case 4:
+					isFeverTime = true;
+					break;
+				case 5:
+					isBonusScore = true;
+				default:
+					break;
+				}
+						
+			}
+		}
+		return true;
+	}
+    
+    @Override
+ 	protected void lineClearCheck() {
+ 		int combo = 0; // 붙어서 삭제 되는 line 수
+ 		for(int j = HEIGHT - 1; j >0; --j) {
+ 			if(!checkLineFull(j)) {
+ 				continue;
+ 			}
+ 			
+ 			while(checkLineFull(j)) {
+ 				if(isFieldClear) {
+ 					fieldClear();
+ 					return;
+ 				}
+ 				
+ 				if(isFeverTime) {
+ 					setFeverTime();
+ 				}
+ 				
+ 				if(isBonusScore) {
+ 					addBonusScore();
+ 				}
+ 				
+ 				combo++; // 붙어서 삭제되는 줄의 수
+ 				
+ 				clearCurrentLine(j);
+
+				while(combo > 0) {
+					deletedLineCount++;
+					combo--;
+					if(deletedLineCount % TARGET_COUNT == 0) {
+						levelUp();
+					}
+				}
+				updateScore();
+			}
+ 			drawBoard();
+ 		}
+ 	}
+    
     @Override
     protected void moveDown() {
-        String itemName = curr.getClass().getSimpleName();
-        if(itemName.equals("WeightBlock")) moveDownWeightBlock();
-        else{
-            //아래로 이동
-            if(checkBottom()) {
-                eraseCurr();
-                y++;
-                gameScore.addScore(); // score 증가
-                updateScore();
-                placeBlock();
-            }
-            //고정
-            else {
-                // inactiveBlock[][]에 블럭 모양 반영
-                inactivateBlock();
-                lineClearCheck();
-                curr = next;
-                next = getRandomBlock(1,probability);
-                x = 3;
-                y = 0;
-                placeBlock();
-                gameOverCheck();
-            }
-        }
-    }
-
-    //FieldClear block 생성 함수
-    private Block createItemFieldClear(Block block) {
-        int n = block.width();
-        int m = block.height();
-        Random rnd = new Random(System.currentTimeMillis()*11);
-        int num = rnd.nextInt(4);
-        int cnt = 0;
-        int[][] FCblock = new int[n][m];
-
-        for (int i=0; i<n;i++) {
-            for (int j=0;j<m;j++) {
-                if (block.getShape(i,j) == 0) {
-                    FCblock[i][j] = 0;
-                    continue;
-                } 
-                cnt ++;
-                if (cnt == num) {
-                    FCblock[i][j] = 3;
-                    continue;
-                } else FCblock[i][j] = 1;
-            }
-        }
-        block.setShape(FCblock);
-        return block;
+    	String itemName = curr.getClass().getSimpleName();
+    	if(itemName.equals("WeightBlock")) moveDownWeightBlock();
+    	else{
+    		//아래로 이동
+    		if(checkBottom()) {
+    			eraseCurr();
+    			y++;
+    			gameScore.addScore(); // score 증가
+    			updateScore();
+    			placeBlock();
+    		}
+    		//고정
+    		else {
+    			// inactiveBlock[][]에 블럭 모양 반영
+    			inactivateBlock();
+    			lineClearCheck();
+    			spawnBlock();
+    		}
+    	}
     }
     
-    private Block createItemFeverTime(Block block) {
-    	int n = block.width();
-        int m = block.height();
-        Random rnd = new Random(System.currentTimeMillis()*11);
-        int num = rnd.nextInt(4);
-        int cnt = 0;
-        int[][] FTblock = new int[n][m];
-
-        for (int i=0; i<n;i++) {
-            for (int j=0;j<m;j++) {
-                if (block.getShape(i,j) == 0) {
-                	FTblock[i][j] = 0;
-                    continue;
-                } 
-                cnt ++;
-                if (cnt == num) {
-                	FTblock[i][j] = 4;
-                    continue;
-                } else FTblock[i][j] = 1;
-            }
-        }
-        block.setShape(FTblock);
-        return block;
-    }
-    
-    private Block createItemBonusScore(Block block) {
-    	int n = block.width();
-        int m = block.height();
-        Random rnd = new Random(System.currentTimeMillis()*11);
-        int num = rnd.nextInt(4);
-        int cnt = 0;
-        int[][] BSblock = new int[n][m];
-
-        for (int i=0; i<n;i++) {
-            for (int j=0;j<m;j++) {
-                if (block.getShape(i,j) == 0) {
-                	BSblock[i][j] = 0;
-                    continue;
-                } 
-                cnt ++;
-                if (cnt == num) {
-                	BSblock[i][j] = 5;
-                    continue;
-                } else BSblock[i][j] = 1;
-            }
-        }
-        block.setShape(BSblock);
-        return block;
-    }
     
     @Override
     protected void hardDrop() {
@@ -398,12 +314,14 @@ public class ItemBoard extends Board {
 	 					gameScore.addScore();
 	 					lineCount--;
 	 				}
+	 				lineClearCheck();
 	 				updateScore();
 	 				return;
 	 			}
 			}
 		}
 	}
+    
     
     @Override
     public void drawBoard() {
