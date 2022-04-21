@@ -1,52 +1,51 @@
 package team3.tetris.component;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import java.awt.*;
+import java.awt.Window.*;
+import java.awt.event.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.io.IOException;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-
-/*
- * 클래스: MainMenu
- * 기능: 게임 시작 시 띄우는 Main menu
- */
+import javax.swing.*;
 
 public class MainMenu extends JFrame implements ActionListener {
 	private KeyListener playerKeyListener;
-	JPanel pan;
 	JLabel label;
 	JButton start;
 	JButton settings;
 	JButton scoreBoard;
 	JButton exit;
 	JButton curBtn;
+    private CustomButton startButton;
+    private CustomButton settingButton; 
+    private CustomButton scoreButton; 
+    private CustomButton exitButton;
+    private CustomButton normalModeButton; 
+    private CustomButton itemModeButton;
+    private CustomButton settingBoard_ExitButton;
+    private CustomButton scoreBoard_ExitButton; 
+    private JPanel pan;                        
+    private JPanel titlePanel;
+    private JPanel buttonPannel1; 
+    private JPanel buttonPannel2; 
+    private JPanel buttonPannel3;
+    private JPanel buttonPannel4;  
+    private JPanel settingBoard;
+    private JPanel modeBoard;           
+    private GridBagConstraints gridBagConstraints;
+    private GridBagLayout gridBagLayout;
 
-	public MainMenu() {
-		super("StartMenu");
-		setSize(350, 300);
-		setLocationRelativeTo(null);
-		setBackground(Color.BLACK);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private int[] preferredResolution;  // frame resolution - frame top border
+
+    public MainMenu() {
+        setSize(350, 300);
+        pan = new JPanel();
+		pan.setBackground(Color.BLACK);
+		pan.setLayout(new GridLayout(0,1));
 
 		addWindowFocusListener(new myWindowFocusListener());
 		playerKeyListener = new PlayerKeyListener();
-		
-		pan = new JPanel();
-		pan.setBackground(Color.BLACK);
-		pan.setLayout(new GridLayout(0,1));
 		
 		label = new JLabel("Tetris");
 		label.setHorizontalAlignment(JLabel.CENTER);
@@ -60,7 +59,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		start.addKeyListener(playerKeyListener);
 		start.setBackground(Color.BLACK);
 		start.setForeground(Color.WHITE);
-		
+				
 		// settings button
 		settings = new JButton("SETTINGS");
 		settings.addActionListener(this);
@@ -76,7 +75,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		scoreBoard.addKeyListener(playerKeyListener);
 		scoreBoard.setBackground(Color.BLACK);
 		scoreBoard.setForeground(Color.WHITE);
-		
+				
 		// exit button
 		exit = new JButton("EXIT");
 		exit.addActionListener(this);
@@ -100,9 +99,8 @@ public class MainMenu extends JFrame implements ActionListener {
 		add(pan);
 		
 		start.requestFocus();
-	}
+    }
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == start) {
 			ModeSelect selector = new ModeSelect();
@@ -112,6 +110,8 @@ public class MainMenu extends JFrame implements ActionListener {
 		else if(e.getSource() == settings) {
 			// 세팅 인터페이스 띄우기
 			new Settings().setVisible(true);
+
+			dispose();
 		}
 		else if(e.getSource() == scoreBoard) {
 			try {
@@ -170,7 +170,7 @@ public class MainMenu extends JFrame implements ActionListener {
 			curBtn.setForeground(Color.WHITE);
 		}	
 	}
-	
+
 	public class myWindowFocusListener implements WindowFocusListener {
 
 		@Override
