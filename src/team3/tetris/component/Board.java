@@ -1,6 +1,7 @@
 package team3.tetris.component;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -9,14 +10,15 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
-import javax.security.auth.PrivateCredentialPermission;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import team3.tetris.blocks.Block;
 import team3.tetris.blocks.IBlock;
@@ -56,8 +58,6 @@ public class Board extends JFrame {
 	protected JTextPane pane;
 	protected SimpleAttributeSet styleSet;
 	protected Block curr;
-	protected Block next;
-
 	protected JTextPane previewPane;
 	protected JTextPane scorePane;
 	protected JTextPane statusBar;
@@ -68,7 +68,7 @@ public class Board extends JFrame {
 	protected int[][] previewBoard;
 	protected KeyListener playerKeyListener;
 	protected Timer timer;
-
+	protected Block next;
 	protected String status;
 	
 	int x = 3; //Default Position.
@@ -105,7 +105,7 @@ public class Board extends JFrame {
 		setFocusable(true);
 		requestFocus(); // 컴포넌트가 이벤트를 받을 수 있게 함. (키 이벤트 독점)
 		setDisplayAndLayout();
-
+		
 		// Create block and draw.
 		curr = getRandomBlock(11, probability);
 		next = getRandomBlock(1, probability);
@@ -120,7 +120,7 @@ public class Board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // X 버튼 눌렀을 때 닫히도록 설정
 
 		//Board display setting.
-		setSize(gameSize*46,gameSize*(77-gameSizeType));
+		setSize(gameSize*46,gameSize*(53-gameSizeType));
 		setLocationRelativeTo(null);
 		CompoundBorder border = BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.GRAY, frameSize*2),
@@ -132,11 +132,12 @@ public class Board extends JFrame {
 		pane = new JTextPane();
 		pane.setBackground(Color.BLACK);
 		pane.setBorder(border);
-		pane.setBounds(gameSize*0, gameSize*0, gameSize*20, gameSize*66);
+		pane.setBounds(gameSize*0, gameSize*0, gameSize*20, gameSize*49);
 		this.getContentPane().add(pane);
 													//20
 		//PreviewBoard
 		previewPane = new JTextPane();
+		previewPane.setEditable(false);
 		previewPane.setBackground(Color.BLACK);
 		previewPane.setBorder(border);
 		previewPane.setBounds(gameSize*22, gameSize*0, gameSize*13, gameSize*13);
@@ -172,9 +173,10 @@ public class Board extends JFrame {
 		gameModeBar.setBounds(gameSize*22, gameSize*33,gameSize*13, gameSize*5);
 		gameModeBar.setBorder(border4);
 		gameModeBar.setFont(font);
-		gameModeBar.setText("GameMode");
+		String txt = isNormal ? "Normal Mode" : "Item Mode";
+		gameModeBar.setText(txt);
 		this.getContentPane().add(gameModeBar);
-
+		
 		//difficultyBar
 		difficultyBar = new JTextPane();
 		difficultyBar.setEditable(false);
@@ -184,8 +186,6 @@ public class Board extends JFrame {
 		difficultyBar.setFont(font);
 		difficultyBar.setText(difficulty.getStringDifficulty());
 		this.getContentPane().add(difficultyBar);
-
-
 
 		//statusBar
 		statusBar = new JTextPane();
@@ -206,7 +206,7 @@ public class Board extends JFrame {
 		styleSet = new SimpleAttributeSet();
 		StyleConstants.setFontSize(styleSet, gameSize*2);
 		StyleConstants.setFontFamily(styleSet, "Britannic Bold");
-
+		
 		// Britannic Bold
 		StyleConstants.setBold(styleSet, true);
 		StyleConstants.setForeground(styleSet, Color.WHITE);
@@ -233,10 +233,10 @@ public class Board extends JFrame {
 	}
 
 	private void applyGameSize() {
-		settingGameSize = new GameSize(0);		// 설정창과 연결하기
-		gameSize = settingGameSize.getGameSize();
-		gameSizeType = settingGameSize.getGameSizeType();
-		frameSize = settingGameSize.getFrameSize();
+		settingGameSize = new GameSize(1);		// 설정창과 연결하기
+		gameSize = settingGameSize.getGameSize();	
+		gameSizeType = settingGameSize.getGameSizeType(); 
+		frameSize = settingGameSize.getFrameSize();	
 	}
 
 	public void levelUp() {
@@ -570,19 +570,10 @@ public class Board extends JFrame {
 			return;
 		}
 	}
-	public void spawnBlock() {
-		curr = next;
-		next = getRandomBlock(1,probability);
-		x = 3;
-		y = 0;
-		gameOverCheck();
-		placeBlock();
-	}
-
+	
 	public void gameOverCheck() {
-		PrintBoard(inactiveBlock);
 		for(int k = 0; k < WIDTH; ++k) {
-			if(inactiveBlock[0][k] >= 1) {
+			if(inactiveBlock[0][k] == 1) {
 				timer.stop();
 				Scoreboard sb;
 				try {
@@ -604,19 +595,12 @@ public class Board extends JFrame {
 		for(int i = 0; i<board.length; i++) {
 			appendToPane(pane,BORDER_CHAR,Color.GRAY);
 			for(int j=0;j<board[i].length;j++) {
-				int blockID = board[i][j];
-				if (blockID == 0) {
-					appendToPane(pane, "  ", Color.BLACK);
-				} else if (blockID <= 10) {
+				if (board[i][j] == 11) {
+					appendToPane(pane, "L", Color.WHITE);
+				} else if (10 >= board[i][j] && board[i][j] > 0) {
 					appendToPane(pane,"■", blockByColor(board[i][j]));
-				} else if (blockID == 11) {
-					appendToPane(pane,"L", blockByColor(board[i][j]));
-				} else if (blockID == 12){
-					appendToPane(pane, "☆", Color.WHITE);
-				} else if (blockID == 13){
-					appendToPane(pane, "F", Color.WHITE);
-				} else if (blockID == 14){
-					appendToPane(pane, "B", Color.WHITE);
+				} else {
+					appendToPane(pane, "  ", Color.BLACK);
 				}
 			}
 			appendToPane(pane,BORDER_CHAR,Color.GRAY);
@@ -628,28 +612,27 @@ public class Board extends JFrame {
 	}
 
 	public void drawPreviewBoard() {
-		PrintBoard(previewBoard);
-		previewPane.setText("");
-		appendToPane(previewPane, "\n     ", Color.BLACK);
+		StyleConstants.setForeground(styleSet, next.getColor());
+		StringBuilder sb2 = new StringBuilder();
+
+		sb2.append("\n");
 		for(int i=0; i < previewBoard.length; i++) {
 			for(int j=0; j < previewBoard[i].length; j++) { // 블럭에 해당되는 부분 draw
-				int blockID = previewBoard[i][j];
-				if (blockID == 0) {
-					appendToPane(previewPane, "  ", Color.BLACK);
-				} else if (blockID <= 10) {
-					appendToPane(previewPane,"■", blockByColor(previewBoard[i][j]));
-				} else if (blockID == 11) {
-					appendToPane(previewPane,"L", Color.WHITE);
-				} else if (blockID == 12){
-					appendToPane(previewPane, "☆", Color.WHITE);
-				} else if (blockID == 13){
-					appendToPane(previewPane, "F", Color.WHITE);
-				} else if (blockID == 14){
-					appendToPane(previewPane, "B", Color.WHITE);
+				if(previewBoard[i][j] != 0) {
+					sb2.append("■");
+				} else if(board[i][j] == 11){
+					sb2.append("L");
+				} else {
+					sb2.append("  ");
 				}
 			}
-			appendToPane(previewPane,"\n     ",Color.BLACK);
+			sb2.append("\n");
 		}
+
+		previewPane.setText(sb2.toString());
+		StyledDocument doc = previewPane.getStyledDocument();
+		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
+		previewPane.setStyledDocument(doc);
 	}
 
 	private Color blockByColor(int blockID) {
@@ -738,7 +721,6 @@ public class Board extends JFrame {
 		public void keyReleased(KeyEvent e) {}
 
 	}
-
 
 	void PrintBoard (int [][] arr) {
 		for (int i=0; i< arr.length; i ++){
