@@ -40,7 +40,7 @@ public class MainMenu extends JFrame implements ActionListener {
 		setLocationRelativeTo(null);
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		
 		addWindowFocusListener(new myWindowFocusListener());
 		playerKeyListener = new PlayerKeyListener();
 		

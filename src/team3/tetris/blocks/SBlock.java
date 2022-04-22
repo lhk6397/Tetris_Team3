@@ -6,10 +6,9 @@ public class SBlock extends Block {
 	private static final int ID = 5;
 	public SBlock() {
 		shape = new int[][] { 
-			{0, 5, 5},
-			{5, 5, 0}
+			{0, 1, 1},
+			{1, 1, 0}
 		};
 		color = Color.GREEN;
-		id = 5;
 	}
 }

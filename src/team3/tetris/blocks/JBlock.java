@@ -6,10 +6,9 @@ public class JBlock extends Block {
 	private static final int ID = 2;
 	public JBlock() {
 		shape = new int[][] { 
-				{2, 2, 2},
-				{0, 0, 2}
+				{1, 1, 1},
+				{0, 0, 1}
 		};
 		color = Color.BLUE;
-		id = 2;
 	}
 }
